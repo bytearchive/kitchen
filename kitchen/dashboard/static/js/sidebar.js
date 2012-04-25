@@ -1,4 +1,15 @@
-function setupClickHandlers() {
+function initialiseSidebar() {
+    
+    /**
+     * Make sidebar always visible, even when scrolling
+     */
+    var $scrollingDiv = $("#sidebar");
+    $(window).scroll(function(){            
+        $scrollingDiv
+            .stop()
+            .animate({"marginTop": ($(window).scrollTop() + 30) + "px"}, "slow" );          
+    });
+    
     /**
      * Assign click handlers to all sidebar entries.
      */
