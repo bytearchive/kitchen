@@ -30,3 +30,15 @@
         </table>
     {% endif %}
 {% endblock %}
+{% block bodytail %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        $.getJSON("api/nodes", function(nodes){
+            // TODO
+            // - Humanize roles
+            // - Draw initial DataTable
+            // - Set sidebar click handlers
+        });
+    });
+</script>
+{% endblock %}
