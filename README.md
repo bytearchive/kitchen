@@ -19,6 +19,7 @@ We will need:
 * littlechef 1.2+
 * graphviz
 * pydot 1.0.26+ (for graphviz graphs)
+* GitPython 0.3+
 
 For tests:
 

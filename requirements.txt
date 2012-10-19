@@ -2,3 +2,4 @@ django>=1.4
 logbook
 pydot
 littlechef>=1.2
+GitPython>=0.3

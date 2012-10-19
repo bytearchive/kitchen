@@ -1,9 +1,9 @@
 """Functions to read and process data from a Chef repository"""
 import os
 import simplejson as json
-from subprocess import Popen, PIPE
 
 from littlechef import runner, lib, chef
+from git import Repo
 from logbook import Logger
 
 from kitchen.settings import REPO, REPO_BASE_PATH
@@ -52,30 +52,10 @@ def _check_kitchen():
         return True
 
 
-
 def _get_current_commit():
-    """Returns the current commit id"""
-    commit = _git_log()
-    if commit is not None:
-        commit = commit.split()[1]
-    return commit
-
-
-def _git_log():
-    """Returns stdout of git log -1"""
-    cmd = ['git', 'log', '-n', '1']
-    p = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=REPO_BASE_PATH)
-    stdout, stderr = p.communicate()
-    if p.returncode != 0:
-        log.error("{0} returned {1}: {2}".format(
-                    " ".join(cmd), p.returncode, stderr))
-        return None
-    elif not stdout.startswith('commit '):
-        log.error("{0} output could not be parsed to get the commitid. "
-                    "Got:\n{1}".format(" ".join(cmd), stdout))
-        return None
-    else:
-        return stdout
+    """Returns lastest commit hash"""
+    r = Repo(os.path.join(REPO_BASE_PATH, REPO['NAME']))
+    return unicode(r.head.commit)
 
 
 def build_node_data_bag():

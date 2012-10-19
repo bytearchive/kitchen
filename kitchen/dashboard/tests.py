@@ -19,22 +19,10 @@ class BaseTestCase(TestCase):
 
 
 class TestCommitid(BaseTestCase):
-    def test_get_current_commit(self):
-        """Should return the current commit id when git command returns 0"""
-        current_hash = "fakehash"
-        git_output = ("commit {0}\n"
-                      "Author: Miquel Torres <tobami@gmail.com>\n"
-                      "Date:   Thu Oct 18 15:48:43 2012 +0200\n"
-                      "Change repo sync error message".format(current_hash))
-        with patch('kitchen.dashboard.chef._git_log') as mock:
-            mock.return_value = git_output
-            self.assertEqual(chef._get_current_commit(), current_hash)
 
-    def test_get_current_commit_error(self):
-        """Should return None when the git command does not return 0"""
-        with patch('kitchen.dashboard.chef._git_log') as mock:
-            mock.return_value = None
-            self.assertEqual(chef._get_current_commit(), None)
+    def test_get_current_commit(self):
+        """Should return the current hash when repo is valid"""
+        self.assertTrue(isinstance(chef._get_current_commit(), unicode))
 
 
 class TestNodeCache(BaseTestCase):
