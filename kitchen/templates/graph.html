@@ -12,11 +12,18 @@
 <li class="nav-header">
     Options
 </li>
-<li {% if show_hostnames %} class="active" {% endif %}>
-    <a href="#" data-type="options" data-name="show_hostnames" class="sidebar_link">Show Hostnames</a>
+<li data-name="show_hostnames" data-type="options">
+    <a href="#" class="sidebar_link" id="options_link">Show Hostnames</a>
 </li>
 {% endblock %}
 
 {% block bodycontent %}
 {% if msg %}{{ msg }}{% else %}<img src="/static/img/node_map.svg">{% endif %}
+{% endblock %}
+{% block bodytail %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        setupClickHandlers();
+    });
+</script>
 {% endblock %}

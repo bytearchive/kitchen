@@ -18,6 +18,7 @@
 <script type="text/javascript">
     $(document).ready(function() {
         $.getJSON("api/nodes/", function(data){
+            setupClickHandlers();
             drawNodesTable(data);
         });
     });
