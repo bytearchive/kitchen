@@ -32,31 +32,6 @@ class SyncRepo():
             self._clone()
         self._set_repo_sync_date()
 
-    @staticmethod
-    def get_current_commit():
-        """Returns the current commit id"""
-        commit = SyncRepo._git_log()
-        if commit is not None:
-            commit = commit.split()[1]
-        return commit
-
-    @staticmethod
-    def _git_log():
-        """Returns stdout of git log -1"""
-        cmd = ['git', 'log', '-n', '1']
-        p = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=REPO_BASE_PATH)
-        stdout, stderr = p.communicate()
-        if p.returncode != 0:
-            log.error("{0} returned {1}: {2}".format(
-                      " ".join(cmd), p.returncode, stderr))
-            return None
-        elif not stdout.startswith('commit '):
-            log.error("{0} output could not be parsed to get the commitid. "
-                      "Got:\n{1}".format(" ".join(cmd), stdout))
-            return None
-        else:
-            return stdout
-
     def _update(self):
         """Do a 'git pull'"""
         cmd = ['git', 'pull']

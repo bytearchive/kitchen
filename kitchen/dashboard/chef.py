@@ -1,6 +1,7 @@
 """Functions to read and process data from a Chef repository"""
 import os
 import simplejson as json
+from subprocess import Popen, PIPE
 
 from littlechef import runner, lib, chef
 from logbook import Logger
@@ -13,10 +14,24 @@ KITCHEN_DIR = os.path.join(
     REPO_BASE_PATH, REPO['NAME'], REPO['KITCHEN_SUBDIR'])
 DATA_BAG_PATH = os.path.join(KITCHEN_DIR, "data_bags", "node")
 
+data_cache = None
+
 
 class RepoError(Exception):
     """An error related to repository validity"""
     pass
+
+
+def _cache_is_current(key):
+    """Returns True if the loaded data is current, False otherwise"""
+    if data_cache is None:
+        return False, None
+    else:
+        current_hash = _get_current_commit()
+        if data_cache.get(key, {}).get('hash', '') == current_hash:
+            return True, current_hash
+        else:
+            return False, current_hash
 
 
 def _check_kitchen():
@@ -35,6 +50,32 @@ def _check_kitchen():
         raise RepoError("Node data bag has not yet been built")
     else:
         return True
+
+
+
+def _get_current_commit():
+    """Returns the current commit id"""
+    commit = _git_log()
+    if commit is not None:
+        commit = commit.split()[1]
+    return commit
+
+
+def _git_log():
+    """Returns stdout of git log -1"""
+    cmd = ['git', 'log', '-n', '1']
+    p = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=REPO_BASE_PATH)
+    stdout, stderr = p.communicate()
+    if p.returncode != 0:
+        log.error("{0} returned {1}: {2}".format(
+                    " ".join(cmd), p.returncode, stderr))
+        return None
+    elif not stdout.startswith('commit '):
+        log.error("{0} output could not be parsed to get the commitid. "
+                    "Got:\n{1}".format(" ".join(cmd), stdout))
+        return None
+    else:
+        return stdout
 
 
 def build_node_data_bag():
@@ -66,19 +107,23 @@ def get_environments(nodes):
 def _load_data(data_type):
     """Loads the kitchen's node files"""
     _check_kitchen()
-    current_dir = os.getcwd()
-    os.chdir(KITCHEN_DIR)
     data = []
     if data_type not in ["nodes", "roles"]:
         log.error("Unsupported data type '{0}'".format(data_type))
         return data
-    try:
-        data = getattr(lib, "get_" + data_type)()
-    except SystemExit as e:
-        log.error(e)
-    finally:
-        os.chdir(current_dir)
-    return data
+    is_current, current_hash = _cache_is_current(data_type)
+    if is_current:
+        return data_cache[data_type][data_type]
+    else:
+        current_dir = os.getcwd()
+        os.chdir(KITCHEN_DIR)
+        try:
+            data = getattr(lib, "get_" + data_type)()
+        except SystemExit as e:
+            log.error(e)
+        finally:
+            os.chdir(current_dir)
+        return data
 
 
 def _load_extended_node_data(nodes):

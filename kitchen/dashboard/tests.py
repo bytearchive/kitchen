@@ -6,7 +6,6 @@ from django.test import TestCase
 from mock import patch
 
 from kitchen.dashboard import chef, graphs
-from kitchen.dashboard.repo_sync import SyncRepo
 from kitchen.settings import STATIC_ROOT
 
 # We need to always regenerate the node data bag in case there where changes
@@ -14,17 +13,50 @@ chef.build_node_data_bag()
 TOTAL_NODES = 8
 
 
-class TestRepoSync(TestCase):
+class TestCommitid(TestCase):
     def test_get_current_commit(self):
-        """Should return the current commit id"""
+        """Should return the current commit id when git command returns 0"""
         current_hash = "fakehash"
         git_output = ("commit {0}\n"
                       "Author: Miquel Torres <tobami@gmail.com>\n"
                       "Date:   Thu Oct 18 15:48:43 2012 +0200\n"
                       "Change repo sync error message".format(current_hash))
-        with patch.object(SyncRepo, '_git_log') as mock:
+        with patch('kitchen.dashboard.chef._git_log') as mock:
             mock.return_value = git_output
-            self.assertEqual(SyncRepo.get_current_commit(), current_hash)
+            self.assertEqual(chef._get_current_commit(), current_hash)
+
+    def test_get_current_commit_error(self):
+        """Should return None when the git command does not return 0"""
+        with patch('kitchen.dashboard.chef._git_log') as mock:
+            mock.return_value = None
+            self.assertEqual(chef._get_current_commit(), None)
+
+
+class TestNodeCache(TestCase):
+    def setUp(self):
+        chef.data_cache = None
+
+    def test_cache_is_current(self):
+        """Should return True when commitid is current"""
+        chef.data_cache = {'nodes': {'hash': 'currenthash'}}
+        with patch('kitchen.dashboard.chef._get_current_commit') as mock:
+            mock.return_value = "currenthash"
+            self.assertEqual(chef._cache_is_current('nodes'),
+                             (True, "currenthash"))
+        self.assertEqual(chef.data_cache['nodes']['hash'], "currenthash")
+
+    def test_cache_is_current_empty(self):
+        """Should return False when node_cache is empty"""
+        self.assertEqual(chef.data_cache, None)
+        self.assertEqual(chef._cache_is_current('nodes'), (False, None))
+
+    def test_cache_is_current_old(self):
+        """Should return False when commitid is not current"""
+        chef.data_cache = {'nodes': {'hash': 'oldhash'}}
+        with patch('kitchen.dashboard.chef._get_current_commit') as mock:
+            mock.return_value = "newhash"
+            self.assertEqual(chef._cache_is_current('nodes'),
+                             (False, "newhash"))
 
 
 class TestRepo(TestCase):
