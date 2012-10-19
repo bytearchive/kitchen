@@ -9,7 +9,7 @@ from kitchen.settings import REPO
 
 
 def get_roles(request):
-    """Returns all nodes in the repo"""
+    """Returns all roles in the repo"""
     roles = chef.get_roles()
     return HttpResponse(json.dumps(roles), content_type="application/json")
 
