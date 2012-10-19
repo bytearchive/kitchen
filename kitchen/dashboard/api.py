@@ -17,15 +17,15 @@ def get_roles(request):
 def get_nodes(request):
     """Returns node files. If 'extended' is given, the extended version is
     returned
-
     """
-    env = request.GET.get('env', REPO['DEFAULT_ENV'])
-    roles = request.GET.get('roles', '')
-    virt = request.GET.get('virt', REPO['DEFAULT_VIRT'])
-
-    nodes = chef.get_nodes_extended()
-
-    if env or roles or virt:
-        nodes = chef.filter_nodes(nodes, env, roles, virt)
+    if request.GET.get('extended'):
+        env = request.GET.get('env', REPO['DEFAULT_ENV'])
+        roles = request.GET.get('roles', '')
+        virt = request.GET.get('virt', REPO['DEFAULT_VIRT'])
+        nodes = chef.get_nodes_extended()
+        if env or roles or virt:
+            nodes = chef.filter_nodes(nodes, env, roles, virt)
+    else:
+        nodes = chef.get_nodes()
 
     return HttpResponse(json.dumps(nodes), content_type="application/json")

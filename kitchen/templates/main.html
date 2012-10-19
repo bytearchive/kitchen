@@ -17,7 +17,7 @@
 {% block bodytail %}
 <script type="text/javascript">
     $(document).ready(function() {
-        $.getJSON("api/nodes/", function(data){
+        $.getJSON("api/nodes/?extended=true&env=&virt=", function(data){
             setupClickHandlers();
             drawNodesTable(data);
         });

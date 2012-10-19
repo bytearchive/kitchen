@@ -100,7 +100,7 @@ function buildUrl(){
     // Build url parameters
     var pathName = window.location.pathname;
     if (pathName == '/'){
-        var url = 'api/nodes/?';
+        var url = 'api/nodes/?extended=true&';
         // Set the url
         for (var param in parameters) {
             url += param + '=' + parameters[param] + '&';
