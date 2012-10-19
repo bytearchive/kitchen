@@ -55,11 +55,25 @@ function setupClickHandlers() {
         }
 
         // Build url parameters
-        var url = '?';
-        for (var param in parameters) {
-            url += param + '=' + parameters[param] + '&';
+        var pathName = window.location.pathname;
+        if (pathName == '/'){
+            var url = 'api/nodes/?extended=true?';
+            // Remove trailing '&'
+            for (var param in parameters) {
+                url += param + '=' + parameters[param] + '&';
+            }
+            // Draw new table
+            $.getJSON(url.slice(0, -1), function(data){
+                drawNodesTable(data);
+            });
+        } else {
+            var url = '?';
+            // Remove trailing '&'
+            for (var param in parameters) {
+                url += param + '=' + parameters[param] + '&';
+            }
+            // Redirect to new url
+            window.location = url.slice(0, -1);
         }
-        // Remove trailing '&' and redirect to new url
-        window.location = url.slice(0, -1);
     });
 }
