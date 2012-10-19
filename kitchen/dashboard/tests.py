@@ -6,11 +6,25 @@ from django.test import TestCase
 from mock import patch
 
 from kitchen.dashboard import chef, graphs
+from kitchen.dashboard.repo_sync import SyncRepo
 from kitchen.settings import STATIC_ROOT
 
 # We need to always regenerate the node data bag in case there where changes
 chef.build_node_data_bag()
 TOTAL_NODES = 8
+
+
+class TestRepoSync(TestCase):
+    def test_get_current_commit(self):
+        """Should return the current commit id"""
+        current_hash = "fakehash"
+        git_output = ("commit {0}\n"
+                      "Author: Miquel Torres <tobami@gmail.com>\n"
+                      "Date:   Thu Oct 18 15:48:43 2012 +0200\n"
+                      "Change repo sync error message".format(current_hash))
+        with patch.object(SyncRepo, '_git_log') as mock:
+            mock.return_value = git_output
+            self.assertEqual(SyncRepo.get_current_commit(), current_hash)
 
 
 class TestRepo(TestCase):
