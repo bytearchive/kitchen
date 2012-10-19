@@ -14,6 +14,7 @@
         <script type="text/javascript">
         var show_virt = {% if show_virt %}{{ "true"|safe }}{% else %}{{ "false"|safe }}{% endif %};</script>
         <script type="text/javascript" src="/static/js/sidebar.js"></script>
+        <script type="text/javascript" src="/static/js/util.js"></script>
         {% endblock %}
         {% block extrastyles %}{% endblock %}
         {% block extrahead %}{% endblock %}
@@ -55,16 +56,16 @@
                             Environment
                         </li>
                         {% for env in environments %}
-                        <li {% if env.name == filter_env %} class="active" {% endif %}>
-                            <a href="#" data-type="env" data-name="{{env.name}}" class="sidebar_link">{{env.name}} <span class="badge badge-warning">{{env.counts}}</span></a>
+                        <li data-name="{{env.name}}">
+                            <a href="#" class="sidebar_link" id="env_link">{{env.name}}<span class="badge badge-warning">{{env.counts}}</span></a>
                         </li>
                         {% endfor %}
                         <li class="nav-header">
                             Roles
                         </li>
                         {% for group in roles_groups %}
-                        <li {% if group in filter_roles %} class="active" {% endif %}>
-                            <a href="#" data-type="roles" data-name="{{group}}" class="sidebar_link">{{group}}</a>
+                        <li data-name="{{group}}">
+                            <a href="#" class="sidebar_link" id="role_link">{{group}}</a>
                         </li>
                         {% endfor %}
                         {% if show_virt %}
@@ -72,8 +73,8 @@
                             Virtualization
                         </li>
                         {% for virt_role in virt_roles %}
-                        <li {% if virt_role in filter_virt %} class="active" {% endif %}>
-                            <a href="#" data-type="virt" data-name="{{virt_role}}" class="sidebar_link">{{ virt_role }}</a>
+                        <li data-name="{{virt_role}}">
+                            <a href="#" class="sidebar_link" id="virt_link">{{ virt_role }}</a>
                         </li>
                         {% endfor %}{% endif %}
                         {% block extranav %}{% endblock %}
