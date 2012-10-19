@@ -17,10 +17,9 @@
 {% block bodytail %}
 <script type="text/javascript">
     $(document).ready(function() {
-        $.getJSON("api/nodes/?extended=true&env=&virt=", function(data){
-            setupClickHandlers();
-            drawNodesTable(data);
-        });
+        var nodes = {{nodes|safe}};
+        setupClickHandlers();
+        drawNodesTable(nodes);
     });
 </script>
 {% endblock %}
