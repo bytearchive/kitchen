@@ -17,7 +17,7 @@
 {% block bodytail %}
 <script type="text/javascript">
     $(document).ready(function() {
-        $.getJSON("api/nodes/?extended=true", function(data){
+        $.getJSON("api/nodes/", function(data){
             drawNodesTable(data);
         });
     });

@@ -57,7 +57,7 @@ function setupClickHandlers() {
         // Build url parameters
         var pathName = window.location.pathname;
         if (pathName == '/'){
-            var url = 'api/nodes/?extended=true?';
+            var url = 'api/nodes/?';
             // Remove trailing '&'
             for (var param in parameters) {
                 url += param + '=' + parameters[param] + '&';

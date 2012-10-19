@@ -23,10 +23,7 @@ def get_nodes(request):
     roles = request.GET.get('roles', '')
     virt = request.GET.get('virt', REPO['DEFAULT_VIRT'])
 
-    if request.GET.get('extended'):
-        nodes = chef.get_nodes_extended()
-    else:
-        nodes = chef.get_nodes()
+    nodes = chef.get_nodes_extended()
 
     if env or roles or virt:
         nodes = chef.filter_nodes(nodes, env, roles, virt)
