@@ -13,7 +13,12 @@ chef.build_node_data_bag()
 TOTAL_NODES = 8
 
 
-class TestCommitid(TestCase):
+class BaseTestCase(TestCase):
+    def setUp(self):
+        chef.data_cache = {}
+
+
+class TestCommitid(BaseTestCase):
     def test_get_current_commit(self):
         """Should return the current commit id when git command returns 0"""
         current_hash = "fakehash"
@@ -32,9 +37,7 @@ class TestCommitid(TestCase):
             self.assertEqual(chef._get_current_commit(), None)
 
 
-class TestNodeCache(TestCase):
-    def setUp(self):
-        chef.data_cache = None
+class TestNodeCache(BaseTestCase):
 
     def test_cache_is_current(self):
         """Should return True when commitid is current"""
@@ -47,7 +50,7 @@ class TestNodeCache(TestCase):
 
     def test_cache_is_current_empty(self):
         """Should return False when node_cache is empty"""
-        self.assertEqual(chef.data_cache, None)
+        self.assertEqual(chef.data_cache, {})
         self.assertEqual(chef._cache_is_current('nodes'), (False, None))
 
     def test_cache_is_current_old(self):
@@ -59,7 +62,7 @@ class TestNodeCache(TestCase):
                              (False, "newhash"))
 
 
-class TestRepo(TestCase):
+class TestRepo(BaseTestCase):
 
     def test_good_repo(self):
         """Should return true when a valid repository is found"""
@@ -96,14 +99,38 @@ class TestRepo(TestCase):
         self.assertRaises(chef.RepoError, chef._load_extended_node_data, nodes)
 
 
-class TestData(TestCase):
+class TestData(BaseTestCase):
     nodes = chef.get_nodes_extended()
 
+    def setUp(self):
+        self.data_cache = {'nodes': {'hash': 'currenthash',
+                                     'items': [{'name': "testnode2"}]}}
+
+    def tearDown(self):
+        chef.data_cache = {}
+
     def test_load_data_nodes(self):
-        """Should return nodes when the given argument is 'nodes'"""
-        data = chef._load_data('nodes')
+        """Should return nodes and refresh cache when the given argument is 'nodes'"""
+        chef.data_cache = self.data_cache
+        with patch('kitchen.dashboard.chef._get_current_commit') as mock:
+            mock.return_value = "newhash"
+            data = chef._load_data('nodes')
         self.assertEqual(len(data), TOTAL_NODES)
         self.assertEqual(data[1]['name'], "testnode2")
+        self.assertEqual(chef.data_cache['nodes']['hash'], "newhash")
+        self.assertEqual(chef.data_cache['nodes']['items'], data)
+
+    def test_load_data_nodes_from_cache(self):
+        """Should return nodes when given argument is 'nodes'
+        and cache is not current
+        """
+        chef.data_cache = self.data_cache
+        with patch('kitchen.dashboard.chef._get_current_commit') as mock:
+            mock.return_value = "currenthash"
+            data = chef._load_data('nodes')
+        self.assertEqual(len(data), 1)
+        self.assertEqual(chef.data_cache['nodes']['hash'], "currenthash")
+        self.assertEqual(data, chef.data_cache['nodes']['items'])
 
     def test_get_nodes(self):
         """Should return all nodes"""
@@ -192,7 +219,7 @@ class TestData(TestCase):
         self.assertEqual(data[0]['name'], "testnode4")
 
 
-class TestGraph(TestCase):
+class TestGraph(BaseTestCase):
     nodes = chef.get_nodes_extended()
     roles = chef.get_roles()
     filepath = os.path.join(STATIC_ROOT, 'img', 'node_map.svg')
@@ -291,7 +318,7 @@ class TestGraph(TestCase):
                             min_size, max_size, size))
 
 
-class TestViews(TestCase):
+class TestViews(BaseTestCase):
     filepath = os.path.join(STATIC_ROOT, 'img', 'node_map.svg')
 
     def setUp(self):
@@ -386,7 +413,7 @@ class TestViews(TestCase):
         self.assertFalse(os.path.exists(self.filepath))
 
 
-class TestAPI(TestCase):
+class TestAPI(BaseTestCase):
 
     def test_get_roles(self):
         """Should return all available roles in JSON format"""

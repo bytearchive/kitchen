@@ -14,7 +14,7 @@ KITCHEN_DIR = os.path.join(
     REPO_BASE_PATH, REPO['NAME'], REPO['KITCHEN_SUBDIR'])
 DATA_BAG_PATH = os.path.join(KITCHEN_DIR, "data_bags", "node")
 
-data_cache = None
+data_cache = {}
 
 
 class RepoError(Exception):
@@ -24,11 +24,11 @@ class RepoError(Exception):
 
 def _cache_is_current(key):
     """Returns True if the loaded data is current, False otherwise"""
-    if data_cache is None:
+    if key not in data_cache:
         return False, None
     else:
         current_hash = _get_current_commit()
-        if data_cache.get(key, {}).get('hash', '') == current_hash:
+        if data_cache[key].get('hash', '') == current_hash:
             return True, current_hash
         else:
             return False, current_hash
@@ -113,7 +113,7 @@ def _load_data(data_type):
         return data
     is_current, current_hash = _cache_is_current(data_type)
     if is_current:
-        return data_cache[data_type][data_type]
+        return data_cache[data_type]['items']
     else:
         current_dir = os.getcwd()
         os.chdir(KITCHEN_DIR)
@@ -121,6 +121,8 @@ def _load_data(data_type):
             data = getattr(lib, "get_" + data_type)()
         except SystemExit as e:
             log.error(e)
+        else:
+            data_cache[data_type] = {'hash': current_hash, 'items': data}
         finally:
             os.chdir(current_dir)
         return data
