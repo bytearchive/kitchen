@@ -1,34 +1,8 @@
 {% extends "base.html" %}
 {% load filters %}
 {% block bodycontent %}
-    {% if nodes %}
-        <table class="table">
-            <thead>
-                <tr>
-                    <th class="node_name">Name</th>
-                    <th class="node_ip">IP Address</th>
-                    <th class="node_env">Environment</th>
-                    <th class="node_role">Role</th>
-                </tr>
-            </thead>
-            {% for node in nodes %}
-                <tr>
-                    <td class="node_name">
-                        {{ node.name }}
-                    </td>
-                    <td class="node_ip">
-                        {{ node.ipaddress }}
-                    </td>
-                    <td class="node_env">
-                        {{ node.chef_environment }}
-                    </td>
-                    <td class="node_role">
-                        {% for entry in node.role %}{% if not entry|is_environment_role %}{{ entry }}{% if not forloop.last %}, {% endif %}{% endif %}{% endfor %}
-                    </td>
-                </tr>
-            {% endfor %}
-        </table>
-    {% endif %}
+    <table class="table" id="node_list">
+    </table>
 {% endblock %}
 {% block bodytail %}
 <script type="text/javascript">

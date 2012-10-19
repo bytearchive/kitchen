@@ -68,6 +68,7 @@ function applyFilters(){
     /**
      * Creates a sublist with the given filters.
      */
+    console.log(nodes);
     var nodesArray = nodes.filter(function(val){
         // The filter env has to be the same than the node one
         if (filters['env'] != 'all' && val.chef_environment != filters['env']){
@@ -75,8 +76,10 @@ function applyFilters(){
         }
 
         // The filter virt has to be the same than the node one
-        if (filters['virt'] != 'all' && val.virtualization.role != filters['virt']) {
-            return false;
+        if (val.virtualization) {
+            if (filters['virt'] != 'all' && val.virtualization.role != filters['virt']) {
+                return false;
+            }
         }
 
         // Each filter role has to exist in the node
