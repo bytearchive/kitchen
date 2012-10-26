@@ -46,8 +46,8 @@ DATABASES = {
     }
 }
 
-MEDIA_ROOT = ''
-MEDIA_URL = ''
+MEDIA_ROOT = os.path.join(BASE_PATH, 'dashboard', 'media')
+MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_PATH, 'dashboard', 'static')
 STATIC_URL = '/static/'
 

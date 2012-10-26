@@ -7,7 +7,7 @@ import threading
 import pydot
 from logbook import Logger
 
-from kitchen.settings import STATIC_ROOT, REPO, COLORS
+from kitchen.settings import MEDIA_ROOT, REPO, COLORS
 from kitchen.dashboard.chef import get_role_groups
 
 log = Logger(__name__)
@@ -132,7 +132,7 @@ def generate_node_map(nodes, roles, show_hostnames=True):
             graph.add_edge(edge)
 
     # Generate graph
-    filename = os.path.join(STATIC_ROOT, 'img', 'node_map.svg')
+    filename = os.path.join(MEDIA_ROOT, 'node_map.svg')
     timeout = 10.0  # Seconds
     graph_thread = GraphThread(filename, graph)
     graph_thread.start()
