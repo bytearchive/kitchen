@@ -1,14 +1,13 @@
 """Tests for the kitchen.dashboard app"""
 import os
 import simplejson as json
-from copy import deepcopy
 
 from django.test import TestCase
 from mock import patch
 
 from kitchen.dashboard import chef, graphs
 from kitchen.dashboard.templatetags import filters
-from kitchen.settings import STATIC_ROOT, REPO
+from kitchen.settings import MEDIA_ROOT, STATIC_ROOT, REPO
 
 # We need to always regenerate the node data bag in case there where changes
 chef.build_node_data_bag()
@@ -180,7 +179,7 @@ class TestData(TestCase):
 class TestGraph(TestCase):
     nodes = chef.get_nodes_extended()
     roles = chef.get_roles()
-    filepath = os.path.join(STATIC_ROOT, 'img', 'node_map.svg')
+    filepath = os.path.join(MEDIA_ROOT, 'node_map.svg')
 
     def setUp(self):
         if os.path.exists(self.filepath):
