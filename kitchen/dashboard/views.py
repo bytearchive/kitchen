@@ -6,7 +6,7 @@ import json
 from django.contrib.messages import add_message, ERROR, WARNING
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponse
 from logbook import Logger
 
 from kitchen.backends.lchef import (get_nodes, get_nodes_extended, get_roles,
@@ -171,7 +171,7 @@ def plugins(request, name, method, plugin_type='list'):
         result = func(request, nodes)
     except TypeError:
         raise Http404("Failed running plugin '{0}.{1}'".format(name, method))
-    if not isinstance(result, HttpResponseRedirect):
+    if not isinstance(result, HttpResponse):
         raise Http404("Plugin '{0}.{1}' returned unexpected result: {2}".format(name, method, result))
     else:
         return result
