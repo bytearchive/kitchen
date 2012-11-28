@@ -121,9 +121,9 @@ def graph(request):
     data = {}
     options = _set_options(request.GET.get('options'))
     env_filter = request.GET.get('env', REPO['DEFAULT_ENV'])
+    roles_filter = request.GET.get('roles', '')
     try:
-        data = _get_data(request, env_filter, request.GET.get('roles', ''),
-                         'guest')
+        data = _get_data(request, env_filter, roles_filter, 'guest')
     except RepoError as e:
         add_message(request, ERROR, str(e))
     else:
@@ -139,6 +139,7 @@ def graph(request):
 
     data['show_hostnames'] = 'show_hostnames' in options
     data['query_string'] = request.META['QUERY_STRING']
+    data['related_roles'] = graphs.get_role_relations(env_filter, roles_filter)
     return render_to_response('graph.html',
                               data, context_instance=RequestContext(request))
 
