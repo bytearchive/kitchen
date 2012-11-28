@@ -238,18 +238,26 @@ class TestGraph(TestCase):
         links = graphs._build_links(data)
         self.maxDiff = None
         expected = {
-            'testnode2': {'client_nodes': [('testnode1', 'apache2')]},
+            'testnode2': {
+                'role_prefix': 'webserver',
+                'client_nodes': [('testnode1', 'apache2')]
+            },
             'testnode3.mydomain.com': {
+                'role_prefix': 'dbserver',
                 'client_nodes': [
                     ('testnode2', 'mysql'), ('testnode7', 'mysql')
                 ]
             },
             'testnode5': {
+                'role_prefix': 'dbserver',
                 'client_nodes': [
                     ('testnode2', 'mysql'), ('testnode7', 'mysql')
                 ]
             },
-            'testnode7': {'client_nodes': [('testnode1', 'apache2')]}
+            'testnode7': {
+                'role_prefix': 'webserver',
+                'client_nodes': [('testnode1', 'apache2')]
+            }
         }
         self.assertEqual(links, expected)
 
@@ -260,6 +268,7 @@ class TestGraph(TestCase):
         links = graphs._build_links(data)
         expected = {
             'testnode8': {
+                'role_prefix': 'worker',
                 'needs_nodes': [
                     ('testnode3.mydomain.com', 'mysql'), ('testnode5', 'mysql')
                 ]
@@ -273,19 +282,28 @@ class TestGraph(TestCase):
             self.nodes, 'production')
         links = graphs._build_links(data)
         expected = {
-            'testnode2': {'client_nodes': [('testnode1', 'apache2')]},
+            'testnode2': {
+                'role_prefix': 'webserver',
+                'client_nodes': [('testnode1', 'apache2')]
+            },
             'testnode3.mydomain.com': {
+                'role_prefix': 'dbserver',
                 'client_nodes': [
                     ('testnode2', 'mysql'), ('testnode7', 'mysql')
                 ]
             },
             'testnode5': {
+                'role_prefix': 'dbserver',
                 'client_nodes': [
                     ('testnode2', 'mysql'), ('testnode7', 'mysql')
                 ]
             },
-            'testnode7': {'client_nodes': [('testnode1', 'apache2')]},
+            'testnode7': {
+                'role_prefix': 'webserver',
+                'client_nodes': [('testnode1', 'apache2')]
+            },
             'testnode8': {
+                'role_prefix': 'worker',
                 'needs_nodes': [
                     ('testnode3.mydomain.com', 'mysql'), ('testnode5', 'mysql')
                 ]
