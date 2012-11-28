@@ -165,6 +165,13 @@ class TestViews(TestCase):
                         "Did not find expected string '{0}'".format(error_msg))
         self.assertFalse(os.path.exists(self.filepath))
 
+    def test_graph_extra_roles_display(self):
+        """Should display an extra roles message when graph detects new relations"""
+        resp = self.client.get("/graph/?env=production&roles=dbserver")
+        self.assertEqual(resp.status_code, 200)
+        self.assertTrue('<a href="#" data-type="roles" data-name="webserver"'
+                        ' class="sidebar_link">webserver</a>' in resp.content)
+
     @patch('kitchen.backends.plugins.loader.ENABLE_PLUGINS', [])
     def test_plugin_interface_no_plugin(self):
         """Should return a 404 when a requested plugin does not exist"""
@@ -363,6 +370,22 @@ class TestGraph(TestCase):
                 success, msg = graphs.generate_node_map(data, self.roles)
         self.assertFalse(success)
         self.assertTrue(error_msg in msg)
+
+    def test_get_role_relations(self):
+        """Should obtain unfiltered roles with nodes related to the desired given roles"""
+        extra_roles = graphs.get_role_relations('production', 'dbserver')
+        self.assertEqual(extra_roles, ['webserver', 'worker'])
+        extra_roles = graphs.get_role_relations('production', 'loadbalancer')
+        self.assertEqual(extra_roles, ['webserver'])
+        extra_roles = graphs.get_role_relations('production', 'worker')
+        self.assertEqual(extra_roles, ['dbserver'])
+        extra_roles = graphs.get_role_relations('production', 'webserver')
+        self.assertEqual(extra_roles, ['dbserver', 'loadbalancer'])
+
+    def test_get_empty_role_relations(self):
+        """Should obtain no roles when the given roles have no extra relationships"""
+        extra_roles = graphs.get_role_relations('staging', 'webserver')
+        self.assertEqual(extra_roles, [])
 
 
 class TestAPI(TestCase):
