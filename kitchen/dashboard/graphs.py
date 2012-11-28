@@ -8,9 +8,69 @@ import pydot
 from logbook import Logger
 
 from kitchen.settings import STATIC_ROOT, REPO, COLORS
-from kitchen.backends.lchef import get_role_groups
+from kitchen.backends.lchef import (get_role_groups, filter_nodes,
+                                    get_nodes_extended)
 
 log = Logger(__name__)
+
+
+def get_role_relations(env, roles):
+    """Obtains extra relations with other roles"""
+    if roles:
+        roles = roles.split(',')
+    else:
+        # Is a full environment graph
+        return []
+
+    # Get all nodes for the given environment
+    env_nodes = filter_nodes(get_nodes_extended(), env, '', 'guest')
+    # Get all links for the given environment nodes
+    env_links = _build_links(env_nodes)
+
+    # Get nodes belonging to the given roles
+    nodes_in_roles = []
+    for fqdn in env_links:
+        if env_links[fqdn]['role_prefix'] in roles:
+            rel_nodes = (env_links[fqdn].get('needs_nodes', []) +
+                         env_links[fqdn].get('client_nodes', []))
+            for rel_node in rel_nodes:
+                if rel_node[0] not in nodes_in_roles:
+                    nodes_in_roles.append(rel_node[0])
+
+    extra_roles = []
+    # Check if the given roles point to other different roles
+    for involve_node in nodes_in_roles:
+        env_link = env_links.get(involve_node, False)
+        if (env_link and env_link['role_prefix'] not in roles
+                and env_link['role_prefix'] not in extra_roles):
+            extra_roles.append(env_link['role_prefix'])
+
+    # Check if other different roles point to the given roles
+    for fqdn in env_links:
+        if fqdn not in nodes_in_roles:
+            rel_nodes = (env_links[fqdn].get('needs_nodes', []) +
+                         env_links[fqdn].get('client_nodes', []))
+            for rel_node in rel_nodes:
+                if (rel_node[0] in nodes_in_roles
+                        and env_links[fqdn]['role_prefix'] not in roles
+                        and env_links[fqdn]['role_prefix'] not in extra_roles):
+                    extra_roles.append(env_links[fqdn]['role_prefix'])
+
+    return extra_roles
+
+
+def _get_role_prefix(node):
+    """Calculates the node role prefix used for grouping nodes in the graph"""
+    try:
+        role_prefix = node['role'][0].split("_")[0]
+        if role_prefix == REPO['EXCLUDE_ROLE_PREFIX']:
+            role_prefix = 'none'
+            role_prefix = node['role'][1].split("_")[0]
+            if role_prefix == REPO['EXCLUDE_ROLE_PREFIX']:
+                role_prefix = 'none'
+    except (IndexError, KeyError):
+        role_prefix = 'none'
+    return role_prefix
 
 
 def _build_links(nodes):
@@ -45,6 +105,7 @@ def _build_links(nodes):
                     links['needs_nodes'].append((needed_node['name'], attr))
         if (len(links.get('client_nodes', [])) or
                 len(links.get('needs_nodes', []))):
+            links['role_prefix'] = _get_role_prefix(node)
             linked_nodes[node['name']] = links
     return linked_nodes
 
@@ -71,16 +132,8 @@ def generate_node_map(nodes, roles, show_hostnames=True):
     node_labels = {}  # Only used when show_hostnames = False
     for node in nodes:
         color = "lightyellow"
-        try:
-            role_prefix = node['role'][0].split("_")[0]
-            if role_prefix == REPO['EXCLUDE_ROLE_PREFIX']:
-                role_prefix = 'none'
-                role_prefix = node['role'][1].split("_")[0]
-                if role_prefix == REPO['EXCLUDE_ROLE_PREFIX']:
-                    role_prefix = 'none'
-            color = role_colors[role_prefix]
-        except (IndexError, KeyError):
-            role_prefix = 'none'
+        role_prefix = _get_role_prefix(node)
+        color = role_colors[role_prefix]
         label = "\n".join([role for role in node['role']
                           if not role.startswith(REPO['EXCLUDE_ROLE_PREFIX'])])
         if show_hostnames:
