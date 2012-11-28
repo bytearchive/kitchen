@@ -19,6 +19,14 @@
 
 {% block bodycontent %}
 {% if draw_graph %}<img src="/static/img/node_map.svg">{% endif %}
+    <div>
+        {% if related_roles %}
+            See also 
+            {% for role in related_roles %}
+                <a href="#" data-type="roles" data-name="{{role}}" class="sidebar_link">{{role}}</a>{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
 {% endblock %}
 
 {% block bodytail %}
