@@ -8,13 +8,12 @@ import pydot
 from logbook import Logger
 
 from kitchen.settings import STATIC_ROOT, REPO, COLORS
-from kitchen.backends.lchef import (get_role_groups, filter_nodes,
-                                    get_nodes_extended)
+from kitchen.backends.lchef import get_role_groups
 
 log = Logger(__name__)
 
 
-def get_role_relations(env, roles):
+def get_role_relations(env, roles, env_nodes):
     """Obtains extra relations with other roles"""
     if roles:
         roles = roles.split(',')
@@ -22,8 +21,6 @@ def get_role_relations(env, roles):
         # Is a full environment graph
         return []
 
-    # Get all nodes for the given environment
-    env_nodes = filter_nodes(get_nodes_extended(), env, '', 'guest')
     # Get all links for the given environment nodes
     env_links = _build_links(env_nodes)
 

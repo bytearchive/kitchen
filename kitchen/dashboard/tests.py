@@ -140,6 +140,7 @@ class TestViews(TestCase):
         self.assertTrue("webserver" in resp.content)
         self.assertTrue("staging" in resp.content)
         self.assertFalse(os.path.exists(self.filepath))
+        self.assertFalse("Hidden relationships: " in resp.content)
 
     @patch('kitchen.backends.lchef.KITCHEN_DIR', '/badrepopath/')
     def test_graph_no_nodes(self):
@@ -176,6 +177,12 @@ class TestViews(TestCase):
         self.assertTrue('<a href="#" data-type="roles" data-name="worker" '
                         'class="sidebar_link" id="related_role">worker'
                         '</a>' in resp.content)
+
+    def test_graph_extra_roles_no_display_when_no_roles(self):
+        """Should not display an extra roles message when there are no given roles"""
+        resp = self.client.get("/graph/?env=production&roles=")
+        self.assertEqual(resp.status_code, 200)
+        self.assertFalse("Hidden relationships: " in resp.content)
 
     @patch('kitchen.backends.plugins.loader.ENABLE_PLUGINS', [])
     def test_plugin_interface_no_plugin(self):
@@ -371,23 +378,26 @@ class TestGraph(TestCase):
 
     def test_get_role_relations(self):
         """Should obtain unfiltered roles with nodes related to the desired given roles"""
-        extra_roles = graphs.get_role_relations('production', 'dbserver')
+        prod_nodes = chef.filter_nodes(self.nodes, 'production')
+        extra_roles = graphs.get_role_relations('production', 'dbserver', prod_nodes)
         self.assertEqual(extra_roles, ['webserver', 'worker'])
-        extra_roles = graphs.get_role_relations('production', 'loadbalancer')
+        extra_roles = graphs.get_role_relations('production', 'loadbalancer', prod_nodes)
         self.assertEqual(extra_roles, ['webserver'])
-        extra_roles = graphs.get_role_relations('production', 'worker')
+        extra_roles = graphs.get_role_relations('production', 'worker', prod_nodes)
         self.assertEqual(extra_roles, ['dbserver'])
-        extra_roles = graphs.get_role_relations('production', 'webserver')
+        extra_roles = graphs.get_role_relations('production', 'webserver', prod_nodes)
         self.assertEqual(extra_roles, ['dbserver', 'loadbalancer'])
 
     def test_get_empty_role_relations_when_giving_roles(self):
         """Should obtain no roles when the given roles have no extra relationships"""
-        extra_roles = graphs.get_role_relations('staging', 'webserver')
+        stag_nodes = chef.filter_nodes(self.nodes, 'staging')
+        extra_roles = graphs.get_role_relations('staging', 'webserver', stag_nodes)
         self.assertEqual(extra_roles, [])
 
     def test_get_empty_role_relations_when_not_giving_roles(self):
         """Should obtain no roles when a role filter list is not given"""
-        extra_roles = graphs.get_role_relations('production', '')
+        prod_nodes = chef.filter_nodes(self.nodes, 'staging')
+        extra_roles = graphs.get_role_relations('production', '', prod_nodes)
         self.assertEqual(extra_roles, [])
 
 
