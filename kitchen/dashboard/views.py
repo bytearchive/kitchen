@@ -12,7 +12,8 @@ from logbook import Logger
 from kitchen.backends.lchef import (get_nodes, get_nodes_extended, get_roles,
                                     get_role_groups, get_environments,
                                     filter_nodes, group_nodes_by_host,
-                                    inject_plugin_data, RepoError, plugins as PLUGINS)
+                                    inject_plugin_data, RepoError,
+                                    plugins as PLUGINS)
 from kitchen.dashboard import graphs
 from kitchen.settings import (SHOW_VIRT_VIEW, SHOW_HOST_NAMES, SHOW_LINKS,
                               REPO, SYNCDATE_FILE)
@@ -121,24 +122,36 @@ def graph(request):
     data = {}
     options = _set_options(request.GET.get('options'))
     env_filter = request.GET.get('env', REPO['DEFAULT_ENV'])
+    roles_filter = request.GET.get('roles', '')
+    env_nodes = []
     try:
-        data = _get_data(request, env_filter, request.GET.get('roles', ''),
-                         'guest')
+        data = _get_data(request, env_filter, '', 'guest')
     except RepoError as e:
         add_message(request, ERROR, str(e))
     else:
         if env_filter:
+            env_nodes = data['nodes_extended']
+            if roles_filter:
+                # Filter the env nodes by role
+                data['nodes_extended'] = filter_nodes(data['nodes_extended'],
+                                                      roles=roles_filter)
+                data['filter_roles'] = roles_filter
             success, msg = graphs.generate_node_map(
                 data['nodes_extended'], data.get('roles', []),
                 'show_hostnames' in options)
             data['draw_graph'] = success
             if not success:
                 add_message(request, ERROR, msg)
+            else:
+                data['related_roles'] = graphs.get_role_relations(env_filter,
+                                                                  roles_filter,
+                                                                  env_nodes)
         else:
             add_message(request, WARNING, "Please select an environment")
 
     data['show_hostnames'] = 'show_hostnames' in options
     data['query_string'] = request.META['QUERY_STRING']
+
     return render_to_response('graph.html',
                               data, context_instance=RequestContext(request))
 
@@ -157,12 +170,14 @@ def plugins(request, name, method, plugin_type='list'):
     except AttributeError:
         raise Http404("Plugin '{0}' has no method '{1}'".format(name, method))
     if not getattr(func, '__is_view__', False):
-        raise Http404("Plugin method '{0}.{1}' is not defined as a view".format(name, method))
+        raise Http404("Plugin method '{0}.{1}' ""is not defined "
+                      "as a view".format(name, method))
     nodes = get_nodes()
     nodes = get_nodes_extended(nodes)
     if plugin_type in ('v', 'virt'):
         if func.__p_type__ != 'virt':
-            raise Http404("Plugin '{0}.{1}' has wrong type".format(name, method))
+            raise Http404("Plugin '{0}.{1}' has wrong "
+                          "type".format(name, method))
         nodes = group_nodes_by_host(nodes, roles=None)
     elif func.__p_type__ != 'list':
         raise Http404("Plugin '{0}.{1}' has wrong type".format(name, method))
@@ -172,6 +187,7 @@ def plugins(request, name, method, plugin_type='list'):
     except TypeError:
         raise Http404("Failed running plugin '{0}.{1}'".format(name, method))
     if not isinstance(result, HttpResponse):
-        raise Http404("Plugin '{0}.{1}' returned unexpected result: {2}".format(name, method, result))
+        raise Http404("Plugin '{0}.{1}' returned unexpected result: "
+                      "{2}".format(name, method, result))
     else:
         return result

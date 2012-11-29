@@ -13,6 +13,68 @@ from kitchen.backends.lchef import get_role_groups
 log = Logger(__name__)
 
 
+def get_role_relations(env, roles, env_nodes):
+    """Obtains extra relations with other roles"""
+    if roles:
+        roles = roles.split(',')
+    else:
+        # Is a full environment graph
+        return []
+
+    # Get all links for the given environment nodes
+    env_links = _build_links(env_nodes)
+
+    # Append related nodes outside the given roles
+    inside_nodes = []
+    related_nodes = []
+    for fqdn in env_links:
+        if env_links[fqdn]['role_prefix'] in roles:
+            if fqdn not in inside_nodes:
+                # Node inside the given roles
+                inside_nodes.append(fqdn)
+            rel_nodes = (env_links[fqdn].get('needs_nodes', []) +
+                         env_links[fqdn].get('client_nodes', []))
+            for rel_node in rel_nodes:
+                if rel_node[0] not in related_nodes:
+                    # Related node outside the given roles
+                    related_nodes.append(rel_node[0])
+
+    extra_roles = []
+    # Check if the role nodes appear as links in other different roles
+    for fqdn in env_links:
+        if (fqdn not in inside_nodes and
+                env_links[fqdn]['role_prefix'] not in roles):
+            rel_nodes = (env_links[fqdn].get('needs_nodes', []) +
+                         env_links[fqdn].get('client_nodes', []))
+            for rel_node in rel_nodes:
+                if (rel_node[0] in inside_nodes and
+                        env_links[fqdn]['role_prefix'] not in extra_roles):
+                    extra_roles.append(env_links[fqdn]['role_prefix'])
+
+    # Check if the roles of the related nodes are links with the given roles
+    for fqdn in related_nodes:
+        link_node = env_links.get(fqdn)
+        if (link_node['role_prefix'] not in roles and
+                link_node['role_prefix'] not in extra_roles):
+            extra_roles.append(link_node['role_prefix'])
+
+    return sorted(extra_roles)
+
+
+def _get_role_prefix(node):
+    """Calculates the node role prefix used for grouping nodes in the graph"""
+    try:
+        role_prefix = node['role'][0].split("_")[0]
+        if role_prefix == REPO['EXCLUDE_ROLE_PREFIX']:
+            role_prefix = 'none'
+            role_prefix = node['role'][1].split("_")[0]
+            if role_prefix == REPO['EXCLUDE_ROLE_PREFIX']:
+                role_prefix = 'none'
+    except (IndexError, KeyError):
+        role_prefix = 'none'
+    return role_prefix
+
+
 def _build_links(nodes):
     """Returns a dictionary of nodes that have links to other nodes
     A node builds its links by looking for other nodes with roles present
@@ -43,9 +105,8 @@ def _build_links(nodes):
                         set(needs_roles), set(needed_node['roles'])):
                     links.setdefault('needs_nodes', [])
                     links['needs_nodes'].append((needed_node['name'], attr))
-        if (len(links.get('client_nodes', [])) or
-                len(links.get('needs_nodes', []))):
-            linked_nodes[node['name']] = links
+        links['role_prefix'] = _get_role_prefix(node)
+        linked_nodes[node['name']] = links
     return linked_nodes
 
 
@@ -71,16 +132,8 @@ def generate_node_map(nodes, roles, show_hostnames=True):
     node_labels = {}  # Only used when show_hostnames = False
     for node in nodes:
         color = "lightyellow"
-        try:
-            role_prefix = node['role'][0].split("_")[0]
-            if role_prefix == REPO['EXCLUDE_ROLE_PREFIX']:
-                role_prefix = 'none'
-                role_prefix = node['role'][1].split("_")[0]
-                if role_prefix == REPO['EXCLUDE_ROLE_PREFIX']:
-                    role_prefix = 'none'
-            color = role_colors[role_prefix]
-        except (IndexError, KeyError):
-            role_prefix = 'none'
+        role_prefix = _get_role_prefix(node)
+        color = role_colors[role_prefix]
         label = "\n".join([role for role in node['role']
                           if not role.startswith(REPO['EXCLUDE_ROLE_PREFIX'])])
         if show_hostnames:
