@@ -291,8 +291,8 @@ class KitchenDot(pydot.Dot):
         if status != 0:
             raise pydot.InvocationException(
                 'Program terminated with status: {0}. '
-                'command was: \'{1}\''
-                'stdout follows: {2}'
+                'command was: \'{1}\' '
+                'stdout follows: {2} '
                 'stderr follows: {3}'.format(status, cmdline, stdout, stderr))
         elif stderr:
             print stderr
