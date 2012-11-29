@@ -57,16 +57,9 @@ def get_role_relations(env, roles):
     # Check if the roles of the related nodes are links with the given roles
     for fqdn in related_nodes:
         link_node = env_links.get(fqdn)
-        if link_node is None:
-            # It doesn't appear in the link list, picking the role manually
-            for env_node in env_nodes:
-                if env_node['name'] == fqdn:
-                    role_prefix = _get_role_prefix(env_node)
-        else:
-            # The fqdn is in the link list, we already have the role prefix
-            role_prefix = link_node['role_prefix']
-        if role_prefix not in roles and role_prefix not in extra_roles:
-            extra_roles.append(role_prefix)
+        if (link_node['role_prefix'] not in roles and
+                link_node['role_prefix'] not in extra_roles):
+            extra_roles.append(link_node['role_prefix'])
 
     return sorted(extra_roles)
 
@@ -115,10 +108,8 @@ def _build_links(nodes):
                         set(needs_roles), set(needed_node['roles'])):
                     links.setdefault('needs_nodes', [])
                     links['needs_nodes'].append((needed_node['name'], attr))
-        if (len(links.get('client_nodes', [])) or
-                len(links.get('needs_nodes', []))):
-            links['role_prefix'] = _get_role_prefix(node)
-            linked_nodes[node['name']] = links
+        links['role_prefix'] = _get_role_prefix(node)
+        linked_nodes[node['name']] = links
     return linked_nodes
 
 
