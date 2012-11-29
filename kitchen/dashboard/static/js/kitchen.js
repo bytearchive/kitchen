@@ -16,7 +16,8 @@ function getDefaultDataTableConfig() {
         },
         "aoColumnDefs": [
             /* Expander */ { "bSortable": false, "aTargets": [0] },
-            /* Fqdn */ { "bVisible": false, "aTargets": [1] }
+            /* Fqdn */ { "bVisible": false, "aTargets": [1] },
+            /* Links */ { "bSearchable": false, "aTargets": [-1] }
         ],
         "sDom": '<"top"if>rt<"bottom"lp><"clear">'
     }
