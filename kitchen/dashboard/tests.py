@@ -377,24 +377,29 @@ class TestGraph(TestCase):
         self.assertTrue(error_msg in msg)
 
     def test_get_role_relations(self):
-        """Should obtain unfiltered roles with nodes related to the desired given roles"""
+        """Should return role dependencies when roles with relationships are given"""
         prod_nodes = chef.filter_nodes(self.nodes, 'production')
-        extra_roles = graphs.get_role_relations('production', 'dbserver', prod_nodes)
+        extra_roles = graphs.get_role_relations('production', 'dbserver',
+                                                prod_nodes)
         self.assertEqual(extra_roles, ['webserver', 'worker'])
-        extra_roles = graphs.get_role_relations('production', 'loadbalancer', prod_nodes)
+        extra_roles = graphs.get_role_relations('production', 'loadbalancer',
+                                                prod_nodes)
         self.assertEqual(extra_roles, ['webserver'])
-        extra_roles = graphs.get_role_relations('production', 'worker', prod_nodes)
+        extra_roles = graphs.get_role_relations('production', 'worker',
+                                                prod_nodes)
         self.assertEqual(extra_roles, ['dbserver'])
-        extra_roles = graphs.get_role_relations('production', 'webserver', prod_nodes)
+        extra_roles = graphs.get_role_relations('production', 'webserver',
+                                                prod_nodes)
         self.assertEqual(extra_roles, ['dbserver', 'loadbalancer'])
 
-    def test_get_empty_role_relations_when_giving_roles(self):
+    def test_get_role_relations_empty_when_roles(self):
         """Should obtain no roles when the given roles have no extra relationships"""
         stag_nodes = chef.filter_nodes(self.nodes, 'staging')
-        extra_roles = graphs.get_role_relations('staging', 'webserver', stag_nodes)
+        extra_roles = graphs.get_role_relations('staging', 'webserver',
+                                                stag_nodes)
         self.assertEqual(extra_roles, [])
 
-    def test_get_empty_role_relations_when_not_giving_roles(self):
+    def test_get_role_relations_empty_when_no_roles(self):
         """Should obtain no roles when a role filter list is not given"""
         prod_nodes = chef.filter_nodes(self.nodes, 'staging')
         extra_roles = graphs.get_role_relations('production', '', prod_nodes)
