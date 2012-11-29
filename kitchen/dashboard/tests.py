@@ -375,8 +375,6 @@ class TestGraph(TestCase):
         """Should obtain unfiltered roles with nodes related to the desired given roles"""
         extra_roles = graphs.get_role_relations('production', 'dbserver')
         self.assertEqual(extra_roles, ['webserver', 'worker'])
-        extra_roles = graphs.get_role_relations('production', 'loadbalancer')
-        self.assertEqual(extra_roles, ['webserver'])
         extra_roles = graphs.get_role_relations('production', 'worker')
         self.assertEqual(extra_roles, ['dbserver'])
         extra_roles = graphs.get_role_relations('production', 'webserver')
