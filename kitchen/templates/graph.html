@@ -19,14 +19,14 @@
 
 {% block bodycontent %}
 {% if draw_graph %}<img src="/static/img/node_map.svg">{% endif %}
-    <div>
-        {% if related_roles %}
-            See also 
+    {% if related_roles %}
+        <div id="related_roles">
+            Hidden relationships: 
             {% for role in related_roles %}
-                <a href="#" data-type="roles" data-name="{{role}}" class="sidebar_link">{{role}}</a>{% if not forloop.last %}, {% endif %}
+                <a href="#" data-type="roles" data-name="{{role}}" class="sidebar_link" id="related_role">{{role}}</a>{% if not forloop.last %}, {% endif %}
             {% endfor %}
-        {% endif %}
-    </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block bodytail %}
