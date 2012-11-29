@@ -27,36 +27,48 @@ def get_role_relations(env, roles):
     # Get all links for the given environment nodes
     env_links = _build_links(env_nodes)
 
-    # Get nodes belonging to the given roles
-    nodes_in_roles = []
+    # Append related nodes outside the given roles
+    inside_nodes = []
+    related_nodes = []
     for fqdn in env_links:
         if env_links[fqdn]['role_prefix'] in roles:
+            if fqdn not in inside_nodes:
+                # Node inside the given roles
+                inside_nodes.append(fqdn)
             rel_nodes = (env_links[fqdn].get('needs_nodes', []) +
                          env_links[fqdn].get('client_nodes', []))
             for rel_node in rel_nodes:
-                if rel_node[0] not in nodes_in_roles:
-                    nodes_in_roles.append(rel_node[0])
+                if rel_node[0] not in related_nodes:
+                    # Related node outside the given roles
+                    related_nodes.append(rel_node[0])
 
     extra_roles = []
-    # Check if the given roles point to other different roles
-    for involve_node in nodes_in_roles:
-        env_link = env_links.get(involve_node, False)
-        if (env_link and env_link['role_prefix'] not in roles
-                and env_link['role_prefix'] not in extra_roles):
-            extra_roles.append(env_link['role_prefix'])
-
-    # Check if other different roles point to the given roles
+    # Check if the role nodes appear as links in other different roles
     for fqdn in env_links:
-        if fqdn not in nodes_in_roles:
+        if (fqdn not in inside_nodes and
+                env_links[fqdn]['role_prefix'] not in roles):
             rel_nodes = (env_links[fqdn].get('needs_nodes', []) +
                          env_links[fqdn].get('client_nodes', []))
             for rel_node in rel_nodes:
-                if (rel_node[0] in nodes_in_roles
-                        and env_links[fqdn]['role_prefix'] not in roles
-                        and env_links[fqdn]['role_prefix'] not in extra_roles):
+                if (rel_node[0] in inside_nodes and
+                        env_links[fqdn]['role_prefix'] not in extra_roles):
                     extra_roles.append(env_links[fqdn]['role_prefix'])
 
-    return extra_roles
+    # Check if the roles of the related nodes are links with the given roles
+    for fqdn in related_nodes:
+        link_node = env_links.get(fqdn)
+        if link_node is None:
+            # It doesn't appear in the link list, picking the role manually
+            for env_node in env_nodes:
+                if env_node['name'] == fqdn:
+                    role_prefix = _get_role_prefix(env_node)
+        else:
+            # The fqdn is in the link list, we already have the role prefix
+            role_prefix = link_node['role_prefix']
+        if role_prefix not in roles and role_prefix not in extra_roles:
+            extra_roles.append(role_prefix)
+
+    return sorted(extra_roles)
 
 
 def _get_role_prefix(node):
