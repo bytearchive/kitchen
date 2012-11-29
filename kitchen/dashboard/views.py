@@ -134,8 +134,7 @@ def graph(request):
             if roles_filter:
                 # Filter the env nodes by role
                 data['nodes_extended'] = filter_nodes(data['nodes_extended'],
-                                                      env_filter, roles_filter,
-                                                      'guest')
+                                                      roles=roles_filter)
                 data['filter_roles'] = roles_filter
             success, msg = graphs.generate_node_map(
                 data['nodes_extended'], data.get('roles', []),
