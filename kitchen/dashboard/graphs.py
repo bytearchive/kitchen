@@ -283,39 +283,19 @@ class KitchenDot(pydot.Dot):
             stderr=subprocess.PIPE, stdout=subprocess.PIPE
         )
 
-        stderr = self.p.stderr
-        stdout = self.p.stdout
-
-        stdout_output = list()
-        while True:
-            data = stdout.read()
-            if not data:
-                break
-            stdout_output.append(data)
-        stdout.close()
-
-        stdout_output = ''.join(stdout_output)
-
-        if not stderr.closed:
-            stderr_output = list()
-            while True:
-                data = stderr.read()
-                if not data:
-                    break
-                stderr_output.append(data)
-            stderr.close()
-
-            if stderr_output:
-                stderr_output = ''.join(stderr_output)
-
         status = self.p.wait()
+
+        stderr = self.p.stderr.read()
+        stdout = self.p.stdout.read()
 
         if status != 0:
             raise pydot.InvocationException(
                 'Program terminated with status: {0}. '
-                'stderr follows: {1}'.format(status, stderr_output))
-        elif stderr_output:
-            print stderr_output
+                'command was: \'{1}\''
+                'stdout follows: {2}'
+                'stderr follows: {3}'.format(status, cmdline, stdout, stderr))
+        elif stderr:
+            print stderr
 
         #  For each of the image files...
         for img in self.shape_files:
@@ -324,4 +304,4 @@ class KitchenDot(pydot.Dot):
 
         os.unlink(tmp_name)
 
-        return stdout_output
+        return stdout
