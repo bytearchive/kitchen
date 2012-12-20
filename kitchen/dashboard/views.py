@@ -33,15 +33,15 @@ def _get_data(request, env, roles, virt, group_by_host=False):
     data['nodes'] = get_nodes()
     data['nodes_extended'] = get_nodes_extended(data['nodes'])
     data['environments'] = get_environments(data['nodes_extended'])
-    roles_to_filter = '' if group_by_host else data['filter_roles']
-    if data['filter_env'] or roles_to_filter or data['filter_virt']:
+    if group_by_host:
+        data['nodes_extended'] = group_nodes_by_host(data['nodes_extended'],
+                                                     roles=data['filter_roles'],
+                                                     env=data['filter_env'])
+    elif data['filter_env'] or data['filter_roles'] or data['filter_virt']:
         data['nodes_extended'] = filter_nodes(data['nodes_extended'],
                                               data['filter_env'],
-                                              roles_to_filter,
+                                              data['filter_roles'],
                                               data['filter_virt'])
-    if group_by_host:
-        data['nodes_extended'] = group_nodes_by_host(
-            data['nodes_extended'], roles=data['filter_roles'])
     inject_plugin_data(data['nodes_extended'])
     if not data['nodes_extended']:
         add_message(request, WARNING,
