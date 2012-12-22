@@ -290,7 +290,6 @@ class TestGraph(TestCase):
                 ]
             }
         }
-        print links
         self.assertEqual(links, expected)
 
     def test_build_links_all(self):
@@ -320,7 +319,6 @@ class TestGraph(TestCase):
                 ]
             }
         }
-        print links
         self.assertEqual(links, expected)
 
     def test_generate_empty_graph(self):

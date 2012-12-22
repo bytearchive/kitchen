@@ -184,27 +184,16 @@ class TestData(TestCase):
         self.assertEqual(len(data), 1)
         for host in data:
             self.assertEqual(host['virtualization']['role'], 'host')
-        vms = data[0]['virtualization']['guests']
         expected_vms = ['testnode4']
-        self.assertEqual(len(vms), len(expected_vms))
-        for vm in vms:
-            fqdn = vm['fqdn']
-            self.assertTrue(fqdn in expected_vms)
-            expected_vms.remove(fqdn)
+        self.assertEqual(len(data[0]['virtualization']['guests']), 3)
 
     def test_group_by_hosts_with_role(self):
         """Should group guests by hosts when giving a role filter"""
         data = chef.group_nodes_by_host(chef.get_nodes_extended(),
-                                        roles='webserver')
-        self.assertEqual(len(data), 2)
-        self.assertEqual(data[0]['name'], 'testnode5')
-        vms = data[0]['virtualization']['guests']
-        expected_vms = ['testnode7', 'testnode8']
-        self.assertEqual(len(vms), len(expected_vms))
-        for vm in vms:
-            fqdn = vm['fqdn']
-            self.assertTrue(fqdn in expected_vms)
-            expected_vms.remove(fqdn)
+                                        roles='loadbalancer')
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]['name'], 'testnode9')
+        self.assertEqual(len(data[0]['virtualization']['guests']), 3)
 
 
 class TestPlugins(TestCase):

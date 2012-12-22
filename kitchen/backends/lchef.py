@@ -128,7 +128,7 @@ def inject_plugin_data(nodes):
 def group_nodes_by_host(nodes, roles='', env=''):
     """Returns a list of hosts with their virtual machines"""
     hosts = filter_nodes(nodes, virt_roles='host')
-    guests = filter_nodes(nodes, virt_roles='guest', env=env)
+    guests = filter_nodes(nodes, virt_roles='guest')
     filtered_hosts = []
 
     for host in hosts:
@@ -140,14 +140,13 @@ def group_nodes_by_host(nodes, roles='', env=''):
                 if guest['fqdn'] == vm['fqdn']:
                     vm.update(guest)  # Set guest attributes in the vm
                     guest_found = True
-                    if filter_nodes([guest], roles=roles):
+                    if filter_nodes([guest], roles=roles, env=env):
                         has_role = True
                     break
             if not guest_found:
                 vms.remove(vm)  # Filter the vm (won't be shown)
         host['virtualization']['guests'] = vms
         if has_role:
-            print host['name'],host['virtualization']['guests']
             # Show only a host if it has 1 or more vms with desired roles
             filtered_hosts.append(host)
     return filtered_hosts
