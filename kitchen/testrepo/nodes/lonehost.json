@@ -1,0 +1,16 @@
+{
+    "chef_environment": "production",
+    "ipaddress": "110.110.110.110",
+    "memory": {
+        "total": "8000000kB"
+    },
+    "cpu": {
+        "total": "2"
+    },
+    "virtualization": {
+        "role": "host",
+        "system": "xen"
+    },
+    "run_list": [
+    ]
+}

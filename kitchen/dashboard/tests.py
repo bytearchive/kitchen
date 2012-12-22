@@ -12,7 +12,7 @@ from kitchen.settings import STATIC_ROOT, REPO
 
 # We need to always regenerate the node data bag in case there where changes
 chef.build_node_data_bag()
-TOTAL_NODES = 9
+TOTAL_NODES = 10
 
 
 class TestViews(TestCase):

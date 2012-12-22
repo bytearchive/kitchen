@@ -1,0 +1,1 @@
+{"domain": "", "name": "lonehost", "roles": [], "recipes": [], "chef_environment": "production", "hostname": "lonehost", "fqdn": "lonehost", "id": "lonehost", "role": [], "virtualization": {"role": "host", "system": "xen"}, "run_list": [], "memory": {"total": "8000000kB"}, "ipaddress": "110.110.110.110", "cpu": {"total": "2"}}

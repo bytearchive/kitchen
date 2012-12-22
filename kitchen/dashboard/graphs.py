@@ -315,7 +315,7 @@ class KitchenDot(pydot.Dot):
                 'Program terminated with status: {0}. '
                 'stderr follows: {1}'.format(status, stderr_output))
         elif stderr_output:
-            print stderr_output
+            log.error(stderr_output)
 
         #  For each of the image files...
         for img in self.shape_files:
