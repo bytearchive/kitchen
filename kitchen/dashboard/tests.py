@@ -12,7 +12,7 @@ from kitchen.settings import STATIC_ROOT, REPO
 
 # We need to always regenerate the node data bag in case there where changes
 chef.build_node_data_bag()
-TOTAL_NODES = 9
+TOTAL_NODES = 10
 
 
 class TestViews(TestCase):
@@ -290,7 +290,6 @@ class TestGraph(TestCase):
                 ]
             }
         }
-        print links
         self.assertEqual(links, expected)
 
     def test_build_links_all(self):
@@ -320,7 +319,6 @@ class TestGraph(TestCase):
                 ]
             }
         }
-        print links
         self.assertEqual(links, expected)
 
     def test_generate_empty_graph(self):

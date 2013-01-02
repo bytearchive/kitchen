@@ -28,6 +28,15 @@
                 "cpu": {
                     "total": "4"
                 }
+            },
+            {
+                "memory": {
+                    "total": "2000000kB"
+                },
+                "fqdn": "testnode4",
+                "cpu": {
+                    "total": "2"
+                }
             }
         ]
     },

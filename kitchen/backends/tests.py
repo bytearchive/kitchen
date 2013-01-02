@@ -8,7 +8,7 @@ from kitchen.backends import plugins
 from kitchen.backends.plugins import loader
 
 chef.build_node_data_bag()
-TOTAL_NODES = 9
+TOTAL_NODES = 10
 
 
 class TestRepo(TestCase):
@@ -56,7 +56,7 @@ class TestData(TestCase):
         """Should return nodes when the given argument is 'nodes'"""
         data = chef._data_loader('nodes')
         self.assertEqual(len(data), TOTAL_NODES)
-        self.assertEqual(data[1]['name'], "testnode2")
+        self.assertTrue(data[1]['name'].startswith('testnode'))
 
     def test_data_loader_json_error(self):
         """Should raise RepoError when LittleChef raises SystemExit"""
@@ -68,7 +68,7 @@ class TestData(TestCase):
         """Should return nodes when the given argument is 'nodes'"""
         data = chef._load_data('nodes')
         self.assertEqual(len(data), TOTAL_NODES)
-        self.assertEqual(data[1]['name'], "testnode2")
+        self.assertTrue(data[1]['name'].startswith('testnode'))
 
     def test_load_data_roles(self):
         """Should return roles when the given argument is 'roles'"""
@@ -84,14 +84,14 @@ class TestData(TestCase):
         """Should return all nodes when calling get_nodes()"""
         data = chef.get_nodes()
         self.assertEqual(len(data), TOTAL_NODES)
-        self.assertEqual(data[1]['name'], "testnode2")
+        self.assertTrue(data[1]['name'].startswith('testnode'))
 
     def test_get_environments(self):
         """Should return a list of all chef_environment values found"""
         data = chef.get_environments(chef.get_nodes_extended())
         self.assertEqual(len(data), 3)
         expected = [{'counts': 1, 'name': 'none'},
-                    {'counts': 7, 'name': 'production'},
+                    {'counts': 8, 'name': 'production'},
                     {'counts': 1, 'name': 'staging'}]
         self.assertEqual(data, expected)
 
@@ -103,7 +103,7 @@ class TestData(TestCase):
     def test_filter_nodes_env(self):
         """Should filter nodes belonging to a given environment"""
         data = chef.filter_nodes(chef.get_nodes_extended(), 'production')
-        self.assertEqual(len(data), 7)
+        self.assertEqual(len(data), 8)
 
         data = chef.filter_nodes(chef.get_nodes_extended(), 'staging')
         self.assertEqual(len(data), 1)
@@ -136,7 +136,7 @@ class TestData(TestCase):
     def test_filter_nodes_virt(self):
         """Should filter nodes acording to their virt value"""
         total_guests = 7
-        total_hosts = 2
+        total_hosts = 3
         data = chef.filter_nodes(chef.get_nodes_extended(), virt_roles='guest')
         self.assertEqual(len(data), total_guests)
 
@@ -163,32 +163,38 @@ class TestData(TestCase):
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]['name'], "testnode4")
 
-    def test_group_by_hosts_without_filter_by_role(self):
-        """Should group guests by hosts when no role is given"""
-        data = chef.group_nodes_by_host(chef.get_nodes_extended(), roles='')
-        self.assertEqual(len(data), 2)
-        self.assertEqual(data[0]['name'], 'testnode5')
-        vms = data[0]['virtualization']['guests']
-        expected_vms = ['testnode7', 'testnode8']
+    def test_group_by_hosts(self):
+        """Should group all guests by hosts when called without arguments"""
+        data = chef.group_nodes_by_host(chef.get_nodes_extended())
+        self.assertEqual(len(data), 3)
+        for host in data:
+            self.assertEqual(host['virtualization']['role'], 'host')
+        self.assertEqual(data[2]['name'], "testnode9")
+        vms = data[2]['virtualization']['guests']
+        expected_vms = ['testnode1', 'testnode2', 'testnode4']
         self.assertEqual(len(vms), len(expected_vms))
         for vm in vms:
             fqdn = vm['fqdn']
             self.assertTrue(fqdn in expected_vms)
             expected_vms.remove(fqdn)
 
-    def test_group_by_hosts_with_filter_by_role(self):
+    def test_group_by_hosts_with_env(self):
+        """Should group guests in env by hosts when env is given"""
+        data = chef.group_nodes_by_host(chef.get_nodes_extended(),
+                                        env='staging')
+        self.assertEqual(len(data), 1)
+        for host in data:
+            self.assertEqual(host['virtualization']['role'], 'host')
+        expected_vms = ['testnode4']
+        self.assertEqual(len(data[0]['virtualization']['guests']), 3)
+
+    def test_group_by_hosts_with_role(self):
         """Should group guests by hosts when giving a role filter"""
         data = chef.group_nodes_by_host(chef.get_nodes_extended(),
-                                        roles='webserver')
-        self.assertEqual(len(data), 2)
-        self.assertEqual(data[0]['name'], 'testnode5')
-        vms = data[0]['virtualization']['guests']
-        expected_vms = ['testnode7', 'testnode8']
-        self.assertEqual(len(vms), len(expected_vms))
-        for vm in vms:
-            fqdn = vm['fqdn']
-            self.assertTrue(fqdn in expected_vms)
-            expected_vms.remove(fqdn)
+                                        roles='loadbalancer')
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]['name'], 'testnode9')
+        self.assertEqual(len(data[0]['virtualization']['guests']), 3)
 
 
 class TestPlugins(TestCase):
