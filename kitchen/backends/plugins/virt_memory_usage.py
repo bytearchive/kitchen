@@ -11,4 +11,4 @@ def inject(node):
         memory = int(guest.get('memory').get('total').rstrip('kB'))
         node['kitchen']['data']['memory_usage'] += memory
     # transform into GB
-    node['kitchen']['data']['memory_usage'] /= 1000000
+    node['kitchen']['data']['memory_usage'] /= 1048576
