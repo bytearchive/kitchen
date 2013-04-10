@@ -56,9 +56,12 @@ function buildProgressBar(nodeid, total) {
             return;
         }
     });
-    var status = " bar-danger"; //    "bar-warning", "bar-danger"
-    console.log(memory_usage + " " +  total)
+    var status = "";
     var progress = 100 * memory_usage / total;
+    if (progress > 80) { status = "progress-danger"; }
+    else if (progress > 60) { status = "progress-warning"; }
+    else { status = "progress-success"; }
+    status = " " + status;
     var html = '<div class="progress' + status + '"><div class="bar';
     html += '" style="width: ' + progress + '%;"></div></div>';
     html += '<span class="free-mem">' +  memory_usage + ' / ' + total + '</div>';
@@ -97,7 +100,6 @@ function drawNodeVirtTable(searchText) {
                     oSettings.aoData[oSettings.aiDisplay[iDisplayIndex]]._aData[5].split(" ")[0]
                 );
                 nCell.innerHTML = sGroup;
-                console.log(nCell);
                 nGroup.appendChild(nCell);
                 nTrs[i].parentNode.insertBefore(nGroup, nTrs[i]);
             }
