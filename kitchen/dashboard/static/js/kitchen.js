@@ -48,6 +48,30 @@ function drawNodeListTable(searchText) {
     setExtendedRows(oTable);
 }
 
+function buildProgressBar(nodeid, total) {
+    var memory_usage = 0;
+    NODES_EXTENDED.forEach(function(node) {
+        if (nodeid == node['name']) {
+            memory_usage = node['kitchen']['data']['memory_usage'];
+            return;
+        }
+    });
+    var status = "";
+    var progress = 0;
+    total = parseInt(total);
+    if (!isNaN(total) && total > 0) {
+        progress = 100 * memory_usage / total;
+    }
+    if (progress > 80) { status = "progress-danger"; }
+    else if (progress > 60) { status = "progress-warning"; }
+    else { status = "progress-success"; }
+    status = " " + status;
+    var html = '<span class="free-mem-label">RAM Free: </span><div class="progress' + status + '"><div class="bar';
+    html += '" style="width: ' + progress + '%;"></div></div>';
+    html += '<span class="free-mem">' +  memory_usage + ' / ' + total + ' GB</div>';
+    return html;
+}
+
 function drawNodeVirtTable(searchText) {
     /*
      * Creates the guests DataTable, grouped by hosts
@@ -66,16 +90,22 @@ function drawNodeVirtTable(searchText) {
         var sLastGroup = "";
         for (var i=0;i<nTrs.length;i++) {
             var iDisplayIndex = oSettings._iDisplayStart + i;
-            var sGroup = oSettings.aoData[oSettings.aiDisplay[iDisplayIndex]]._aData[2];
+            var sGroup = '<span class="host-title">';
+            sGroup += oSettings.aoData[oSettings.aiDisplay[iDisplayIndex]]._aData[2];
+            sGroup += '</span>';
             if (sGroup != sLastGroup) {
                 var nGroup = document.createElement('tr');
                 var nCell = document.createElement('td');
                 nCell.colSpan = iColspan;
-                nCell.id = "host_grouper";
+                nCell.className = "host-grouper";
+                sLastGroup = sGroup;
+                sGroup += buildProgressBar(
+                    oSettings.aoData[oSettings.aiDisplay[iDisplayIndex]]._aData[1],
+                    oSettings.aoData[oSettings.aiDisplay[iDisplayIndex]]._aData[5].split(" ")[0]
+                );
                 nCell.innerHTML = sGroup;
                 nGroup.appendChild(nCell);
                 nTrs[i].parentNode.insertBefore(nGroup, nTrs[i]);
-                sLastGroup = sGroup;
             }
         }
     };
@@ -117,9 +147,9 @@ function fnFormatNodeDetails (oTable, nTr) {
      */
     var aData = oTable.fnGetData(nTr);
     var node = undefined;
-    for(var i=0;i<nodes.length;i++) {
-        if (nodes[i].name.substring(0, aData[1].length) == aData[1]) {
-            node = nodes[i];
+    for(var i=0;i<NODES.length;i++) {
+        if (NODES[i].name.substring(0, aData[1].length) == aData[1]) {
+            node = NODES[i];
             break;
         }
     }

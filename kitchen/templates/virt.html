@@ -35,7 +35,7 @@
             </thead>
             <tbody>
             {% for node in nodes_extended %}
-                <tr id="host_row">
+                <tr class="host-row">
                     <td class="control"></td>
                     <td>{{ node.name }}</td>
                     <td>{{ node.name }}</td>
@@ -57,29 +57,29 @@
                     </td>{% if show_links %}
                     <td class="node_tags">{% for entry in node.kitchen.data.links %}{{entry|get_link|safe}}{% endfor %}</td>{% endif %}
                 </tr>
-                 {% for vm in node.virtualization.guests %}
-                    <tr class="guest">
-                        <td class="control"></td>
-                        <td>{{ vm.name }}</td>
-                        <td>{{ node.name }}</td>
-                        <td>{{ vm.hostname }}</td>
-                        <td>{{ vm.ipaddress }}</td>
-                        <td class="node_ram">{{ vm.memory.total|get_memory_in_GB }}</td>
-                        <td class="node_cpus">{{ vm.cpu.total|get_cpus }}</td>
-                        <td>{{ vm.chef_environment }}</td>
-                        <td>{% for entry in vm.run_list|get_role_list %}
-                            {{ entry }}{% if not forloop.last %},{% endif %}
-                            {% endfor %}
-                        </td>
-                        <td>{% for entry in vm.run_list|get_recipe_list %}
-                            {{ entry }}{% if not forloop.last %},{% endif %}
-                            {% endfor %}
-                        </td>
-                        <td class="node_tags">{% for entry in vm.tags %}
-                            <a href="#" class="btn btn-small btn-custom {{entry|get_tag_class}} disabled">{{entry}}</a>{% endfor %}
-                        </td>
-                        {% if show_links %}<td class="node_tags">{% for entry in vm.kitchen.data.links %}{{entry|get_link|safe}}{% endfor %}</td>{% endif %}
-                    </tr>
+                {% for vm in node.virtualization.guests %}
+                <tr class="guest">
+                    <td class="control"></td>
+                    <td>{{ vm.name }}</td>
+                    <td>{{ node.name }}</td>
+                    <td>{{ vm.hostname }}</td>
+                    <td>{{ vm.ipaddress }}</td>
+                    <td class="node_ram">{{ vm.memory.total|get_memory_in_GB }}</td>
+                    <td class="node_cpus">{{ vm.cpu.total|get_cpus }}</td>
+                    <td>{{ vm.chef_environment }}</td>
+                    <td>{% for entry in vm.run_list|get_role_list %}
+                        {{ entry }}{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>{% for entry in vm.run_list|get_recipe_list %}
+                        {{ entry }}{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    </td>
+                    <td class="node_tags">{% for entry in vm.tags %}
+                        <a href="#" class="btn btn-small btn-custom {{entry|get_tag_class}} disabled">{{entry}}</a>{% endfor %}
+                    </td>
+                    {% if show_links %}<td class="node_tags">{% for entry in vm.kitchen.data.links %}{{entry|get_link|safe}}{% endfor %}</td>{% endif %}
+                </tr>
                 {% endfor %}
             {% endfor %}
             </tbody>
@@ -90,7 +90,8 @@
 {% block bodytail %}
 <script type="text/javascript">
     $(document).ready(function() {
-        nodes = {{nodes|safe}};
+        NODES = {{NODES|safe}};
+        NODES_EXTENDED = {{NODES_EXTENDED|safe}};
         setupClickHandlers();
         drawNodeVirtTable(getSearchText());
     });
