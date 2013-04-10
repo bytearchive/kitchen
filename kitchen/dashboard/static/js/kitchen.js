@@ -57,7 +57,11 @@ function buildProgressBar(nodeid, total) {
         }
     });
     var status = "";
-    var progress = 100 * memory_usage / total;
+    var progress = 0;
+    total = parseInt(total);
+    if (!isNaN(total) && total > 0) {
+        progress = 100 * memory_usage / total;
+    }
     if (progress > 80) { status = "progress-danger"; }
     else if (progress > 60) { status = "progress-warning"; }
     else { status = "progress-success"; }
