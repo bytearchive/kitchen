@@ -85,6 +85,7 @@ def main(request):
                          request.GET.get('virt', REPO['DEFAULT_VIRT']))
     except RepoError as e:
         add_message(request, ERROR, str(e))
+        data['NODES'] = []
     else:
         data['NODES'] = json.dumps(data['nodes'])
     data['show_virt'] = SHOW_VIRT_VIEW
@@ -105,6 +106,7 @@ def virt(request):
                          None, group_by_host=True)
     except RepoError as e:
         add_message(request, ERROR, str(e))
+        data['NODES'] = []
     else:
         data['NODES'] = json.dumps(data['nodes'])
         data['NODES_EXTENDED'] = json.dumps(data['nodes_extended'])

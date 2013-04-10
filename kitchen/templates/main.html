@@ -48,7 +48,7 @@
 {% block bodytail %}
 <script type="text/javascript">
     $(document).ready(function() {
-        nodes = {{nodes|safe}};
+        NODES = {{NODES|safe}};
         setupClickHandlers();
         drawNodeListTable(getSearchText());
     });
