@@ -184,6 +184,9 @@ class TestViews(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertFalse("Hidden relationships: " in resp.content)
 
+
+class TestPluginViews(TestCase):
+
     @patch('kitchen.backends.plugins.loader.ENABLE_PLUGINS', [])
     def test_plugin_interface_no_plugin(self):
         """Should return a 404 when a requested plugin does not exist"""

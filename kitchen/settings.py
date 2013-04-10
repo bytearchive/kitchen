@@ -1,7 +1,6 @@
 """Django settings for the Kitchen project"""
 import os
 
-
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
