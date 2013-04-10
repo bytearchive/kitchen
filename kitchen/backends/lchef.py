@@ -44,7 +44,7 @@ def build_node_data_bag():
     os.chdir(KITCHEN_DIR)
     try:
         lib.get_recipes()  # This builds metadata.json for all recipes
-        chef._build_node_data_bag()
+        chef.build_node_data_bag()
     except SystemExit as e:
         log.error(e)
     finally:
@@ -184,7 +184,7 @@ def filter_nodes(nodes, env='', roles='', virt_roles=''):
 def get_node(name):
     """Returns the given node"""
     node = _load_data("node", name)
-    if node == {'run_list': []}:
+    if node == {'name': name, 'run_list': []}:
         # Workaround LittleChef returning an empy node file when not found
         return None
     else:
