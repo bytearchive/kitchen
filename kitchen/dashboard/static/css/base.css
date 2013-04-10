@@ -43,13 +43,25 @@ td.node_ram, td.node_cpus {
     white-space: nowrap;
 }
 
-#host_grouper {
+td.host-grouper {
     background-color: #EEE9E9;
     border-bottom: 1px solid #E1E1E8;
     border-top: 1px solid #E1E1E8;
     opacity: 0.6;
 }
-#host_row { background-color: #F7F7F9; }
+
+td.host-grouper span.host-title { float: left; }
+td.host-grouper div.progress {
+    width: 150px;
+    height: 12px;
+    float: left;
+    margin-bottom: 0px;
+    margin-top: 3px;
+    margin-left: 20px;
+}
+span.free-mem { margin-left: 10px;}
+
+td.host-row { background-color: #F7F7F9; }
 
 div.dataTables_info { float: right; }
 div.dataTables_filter { float: left; }

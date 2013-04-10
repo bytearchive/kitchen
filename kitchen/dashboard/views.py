@@ -86,7 +86,7 @@ def main(request):
     except RepoError as e:
         add_message(request, ERROR, str(e))
     else:
-        data['nodes'] = json.dumps(data['nodes'])
+        data['NODES'] = json.dumps(data['nodes'])
     data['show_virt'] = SHOW_VIRT_VIEW
     data['show_links'] = SHOW_LINKS
     data['query_string'] = request.META['QUERY_STRING']
@@ -106,7 +106,8 @@ def virt(request):
     except RepoError as e:
         add_message(request, ERROR, str(e))
     else:
-        data['nodes'] = json.dumps(data['nodes'])
+        data['NODES'] = json.dumps(data['nodes'])
+        data['NODES_EXTENDED'] = json.dumps(data['nodes_extended'])
     data['show_links'] = SHOW_LINKS
     data['query_string'] = request.META['QUERY_STRING']
     return render_to_response('virt.html',
@@ -182,14 +183,11 @@ def plugins(request, name, method, plugin_type='list'):
     elif func.__p_type__ != 'list':
         raise Http404("Plugin '{0}.{1}' has wrong type".format(name, method))
     inject_plugin_data(nodes)
-    print nodes[0]
-    print nodes[0]['kitchen']['data']
     try:
         result = func(request, nodes)
     except TypeError:
         raise Http404("Failed running plugin '{0}.{1}'".format(name, method))
     if not isinstance(result, HttpResponse):
-        print "WHYYYYY?????", result
         raise Http404("Plugin '{0}.{1}' returned unexpected result: "
                       "{2}".format(name, method, result))
     else:
