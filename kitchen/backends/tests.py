@@ -199,21 +199,17 @@ class TestData(TestCase):
 
 class TestPlugins(TestCase):
 
-    @patch('kitchen.backends.plugins.loader.ENABLE_PLUGINS', ['bad_name'])
     def test_import_plugin_not_found(self):
         """Should not load plugin when module doesn't exist"""
-        self.assertEqual(len(loader.import_plugins()), 0)
+        self.assertEqual(len(loader.import_plugins(['bad_name'])), 0)
 
-    @patch('kitchen.backends.plugins.loader.ENABLE_PLUGINS', ['monitoring'])
     def test_import_plugin(self):
         """Should load plugin when module exists"""
-        self.assertEqual(len(loader.import_plugins()), 1)
+        self.assertEqual(len(loader.import_plugins(['monitoring'])), 1)
 
-    @patch('kitchen.backends.plugins.loader.ENABLE_PLUGINS', ['monitoring'])
     def test_inject_plugin_data(self):
         """Should add link data when plugin is applied"""
-        reload(plugins)
-        reload(chef)
+        chef.plugins = plugins.import_plugins(['monitoring'])
         node = {
             'fqdn': 'testnode',
             'kitchen': {'data': {'links': [{"foo": "bar"}], 'other': {}}}
@@ -222,10 +218,9 @@ class TestPlugins(TestCase):
         self.assertTrue('other' in node['kitchen']['data'])
         self.assertEqual(len(node['kitchen']['data']['links']), 2)
 
-    @patch('kitchen.backends.plugins.loader.ENABLE_PLUGINS', ['monitoring'])
     def test_plugin_view(self):
         """Should load plugin when module exists"""
-        plugins = loader.import_plugins()
+        plugins = loader.import_plugins(['monitoring'])
         self.assertEqual(len(plugins), 1)
         inject = getattr(plugins['monitoring'], 'inject')
         self.assertFalse(getattr(inject, '__is_view__', False))

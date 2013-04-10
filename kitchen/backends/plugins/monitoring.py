@@ -29,6 +29,7 @@ def links(request, nodes):
             except KeyError:
                 return None
             for link in links:
+                print link
                 if link.get('title') == 'monitoring':
                     return redirect(link['url'])
             else:

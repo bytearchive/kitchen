@@ -6,9 +6,9 @@ from django.test import TestCase
 from mock import patch
 
 from kitchen.backends import lchef as chef, plugins
-from kitchen.dashboard import graphs
+from kitchen.dashboard import views, graphs
 from kitchen.dashboard.templatetags import filters
-from kitchen.settings import STATIC_ROOT, REPO
+from kitchen.settings import STATIC_ROOT, REPO, ENABLE_PLUGINS
 
 # We need to always regenerate the node data bag in case there where changes
 chef.build_node_data_bag()
@@ -187,51 +187,48 @@ class TestViews(TestCase):
 
 class TestPluginViews(TestCase):
 
-    @patch('kitchen.backends.plugins.loader.ENABLE_PLUGINS', [])
+    def _patch_enable_plugins(self, enable_plugins):
+        views.PLUGINS = plugins.import_plugins(enable_plugins)
+        chef.plugins = plugins.import_plugins(enable_plugins)
+
+    def tearDown(self):
+        self._patch_enable_plugins(ENABLE_PLUGINS)
+
     def test_plugin_interface_no_plugin(self):
         """Should return a 404 when a requested plugin does not exist"""
-        reload(plugins)
-        reload(chef)
+        self._patch_enable_plugins([])
         with self.settings(DEBUG=True):
             resp = self.client.get("/plugins/name/method")
         self.assertEqual(resp.status_code, 404)
         self.assertTrue("Requested plugin &#39;name&#39; not found" in str(resp))
 
-    @patch('kitchen.backends.plugins.loader.ENABLE_PLUGINS', ['monitoring'])
     def test_plugin_interface_missing_method(self):
-        """Should evaluate view when a requested plugin does exist"""
-        reload(plugins)
-        reload(chef)
+        """Should return 404 when requested method does not exist"""
+        self._patch_enable_plugins(['monitoring'])
         with self.settings(DEBUG=True):
             resp = self.client.get("/plugins/monitoring/boo")
         self.assertEqual(resp.status_code, 404)
         self.assertTrue("has no method &#39;boo&#39;" in str(resp))
 
-    @patch('kitchen.backends.plugins.loader.ENABLE_PLUGINS', ['monitoring'])
     def test_plugin_interface_wrong_arguments(self):
-        """Should evaluate view when a requested plugin does exist"""
-        reload(plugins)
-        reload(chef)
+        """Should return 404 when requested args are wrong"""
+        self._patch_enable_plugins(['monitoring'])
         with self.settings(DEBUG=True):
             resp = self.client.get("/plugins/monitoring/links")
         self.assertEqual(resp.status_code, 404)
         self.assertTrue("returned unexpected result: None" in str(resp))
 
-    @patch('kitchen.backends.plugins.loader.ENABLE_PLUGINS', ['monitoring'])
     def test_plugin_interface_no_view(self):
-        """Should evaluate view when a requested plugin does exist"""
-        reload(plugins)
-        reload(chef)
+        """Should return 404 when requested method is not a view"""
+        self._patch_enable_plugins(['monitoring'])
         with self.settings(DEBUG=True):
             resp = self.client.get("/plugins/monitoring/inject")
         self.assertEqual(resp.status_code, 404)
         self.assertTrue("is not defined as a view" in str(resp))
 
-    @patch('kitchen.backends.plugins.loader.ENABLE_PLUGINS', ['monitoring'])
     def test_plugin_interface(self):
         """Should evaluate view when a requested plugin does exist"""
-        reload(plugins)
-        reload(chef)
+        self._patch_enable_plugins(['monitoring'])
         resp = self.client.get("/plugins/monitoring/links?fqdn=testnode1")
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(

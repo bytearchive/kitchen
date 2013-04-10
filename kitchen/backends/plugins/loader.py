@@ -4,7 +4,7 @@ import imp
 
 from logbook import Logger
 
-from kitchen.settings import BASE_PATH, ENABLE_PLUGINS
+from kitchen.settings import BASE_PATH
 
 log = Logger(__name__)
 
@@ -26,10 +26,10 @@ def import_plugin(name):
     return plugin
 
 
-def import_plugins():
+def import_plugins(enable_plugins):
     """Imports plugin python module"""
     plugins = {}
-    for name in ENABLE_PLUGINS:
+    for name in enable_plugins:
         try:
             plugins[name] = import_plugin(name)
         except ImportError as e:

@@ -182,11 +182,14 @@ def plugins(request, name, method, plugin_type='list'):
     elif func.__p_type__ != 'list':
         raise Http404("Plugin '{0}.{1}' has wrong type".format(name, method))
     inject_plugin_data(nodes)
+    print nodes[0]
+    print nodes[0]['kitchen']['data']
     try:
         result = func(request, nodes)
     except TypeError:
         raise Http404("Failed running plugin '{0}.{1}'".format(name, method))
     if not isinstance(result, HttpResponse):
+        print "WHYYYYY?????", result
         raise Http404("Plugin '{0}.{1}' returned unexpected result: "
                       "{2}".format(name, method, result))
     else:

@@ -1,4 +1,5 @@
 """Plugins package"""
+from kitchen.settings import ENABLE_PLUGINS
 from kitchen.backends.plugins.loader import import_plugins
 
 
@@ -19,4 +20,4 @@ def is_view(plugin_type):
             return func
         return inner
 
-plugins = import_plugins()
+plugins = import_plugins(ENABLE_PLUGINS)
