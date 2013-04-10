@@ -8,7 +8,7 @@ def inject(node):
     node['kitchen'].setdefault('data', {})
     node['kitchen']['data']['memory_usage'] = MIN_HOST_MEM
     for guest in node.get('virtualization', {}).get('guests', []):
-        memory = int(guest.get('memory', {}).get('total', '').rstrip('kB'))
+        memory = int(guest.get('memory', {}).get('total', '0').rstrip('kB'))
         node['kitchen']['data']['memory_usage'] += memory
     # transform into GB
     node['kitchen']['data']['memory_usage'] /= 1048576
