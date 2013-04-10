@@ -1,5 +1,5 @@
 """Plugin that adds guest memory usage in GB"""
-MIN_HOST_MEM = 1000000  # kB
+MIN_HOST_MEM = 1048576  # kB
 
 
 def inject(node):

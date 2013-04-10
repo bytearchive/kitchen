@@ -66,9 +66,9 @@ function buildProgressBar(nodeid, total) {
     else if (progress > 60) { status = "progress-warning"; }
     else { status = "progress-success"; }
     status = " " + status;
-    var html = '<div class="progress' + status + '"><div class="bar';
+    var html = '<span class="free-mem-label">RAM Free: </span><div class="progress' + status + '"><div class="bar';
     html += '" style="width: ' + progress + '%;"></div></div>';
-    html += '<span class="free-mem">' +  memory_usage + ' / ' + total + '</div>';
+    html += '<span class="free-mem">' +  memory_usage + ' / ' + total + ' GB</div>';
     return html;
 }
 

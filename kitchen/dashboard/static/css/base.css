@@ -57,17 +57,18 @@ td.host-grouper div.progress {
     float: left;
     margin-bottom: 0px;
     margin-top: 3px;
-    margin-left: 20px;
+    margin-left: 10px;
 }
-span.free-mem { margin-left: 10px;}
 
+td.host-grouper span { float: left; margin-left: 10px;}
+td.host-grouper span.free-mem-label { margin-left: 20em; }
 td.host-row { background-color: #F7F7F9; }
 
 div.dataTables_info { float: right; }
 div.dataTables_filter { float: left; }
 
-input::-webkit-input-placeholder { color:#cdc9c9; }
-input:-moz-placeholder { color:#cdc9c9; }
+input::-webkit-input-placeholder { color: #cdc9c9; }
+input:-moz-placeholder { color: #cdc9c9; }
 
 /*JSON highlighning */
 .string { color: green; }
