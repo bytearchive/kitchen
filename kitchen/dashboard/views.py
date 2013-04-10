@@ -107,6 +107,7 @@ def virt(request):
     except RepoError as e:
         add_message(request, ERROR, str(e))
         data['NODES'] = []
+        data['NODES_EXTENDED'] = []
     else:
         data['NODES'] = json.dumps(data['nodes'])
         data['NODES_EXTENDED'] = json.dumps(data['nodes_extended'])
