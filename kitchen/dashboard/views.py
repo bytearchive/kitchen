@@ -107,10 +107,8 @@ def virt(request):
     except RepoError as e:
         add_message(request, ERROR, str(e))
         data['NODES'] = []
-        data['NODES_EXTENDED'] = []
     else:
         data['NODES'] = json.dumps(data['nodes'])
-        data['NODES_EXTENDED'] = json.dumps(data['nodes_extended'])
     data['show_links'] = SHOW_LINKS
     data['query_string'] = request.META['QUERY_STRING']
     return render_to_response('virt.html',

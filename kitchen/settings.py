@@ -32,7 +32,7 @@ SHOW_VIRT_VIEW = True
 SHOW_HOST_NAMES = True
 SHOW_LINKS = True
 
-ENABLE_PLUGINS = ['virt_memory_usage']
+ENABLE_PLUGINS = []
 
 LOG_FILE = '/tmp/kitchen.log'
 SYNCDATE_FILE = '/tmp/kitchen-syncdate'
