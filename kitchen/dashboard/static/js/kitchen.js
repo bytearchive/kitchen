@@ -54,7 +54,9 @@ function buildProgressBar(nodeid, total) {
         if (nodeid == node['name']) {
             if (node['virtualization'] != undefined && node['virtualization']['guests'] != undefined) {
                 node['virtualization']['guests'].forEach(function(guest) {
-                    memory_usage += parseInt(guest['memory']['total'].replace("kB", ''));
+                    if (guest['memory'] != undefined && guest['memory']['total'] != undefined) {
+                        memory_usage += parseInt(guest['memory']['total'].replace("kB", ''));
+                    }
                 });
             }
             return;
