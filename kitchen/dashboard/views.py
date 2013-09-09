@@ -24,7 +24,7 @@ log = Logger(__name__)
 def _get_data(request, env, roles, virt, group_by_host=False):
     """Returns processed repository data, filtering nodes based on given args
     """
-    data = {'filter_env': env, 'filter_roles': roles, 'filter_virt': virt}
+    data = {'filter_env': env, 'filter_roles': roles.split(','), 'filter_virt': virt}
     data['roles'] = get_roles()
     roles_groups = get_role_groups(data['roles'])
     data['roles_groups'] = roles_groups
