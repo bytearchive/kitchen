@@ -24,6 +24,7 @@ log = Logger(__name__)
 def _get_data(request, env, roles, virt, group_by_host=False):
     """Returns processed repository data, filtering nodes based on given args
     """
+    roles = [role for role in roles.split(',') if role]
     data = {'filter_env': env, 'filter_roles': roles, 'filter_virt': virt}
     data['roles'] = get_roles()
     roles_groups = get_role_groups(data['roles'])
@@ -124,7 +125,7 @@ def graph(request):
     data = {}
     options = _set_options(request.GET.get('options'))
     env_filter = request.GET.get('env', REPO['DEFAULT_ENV'])
-    roles_filter = request.GET.get('roles', '')
+    roles_filter = [role for role in request.GET.get('roles', '').split(',') if role]
     env_nodes = []
     try:
         data = _get_data(request, env_filter, '', 'guest')

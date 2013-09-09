@@ -254,7 +254,7 @@ class TestGraph(TestCase):
     def test_build_links_client_nodes(self):
         """Should generate links when nodes have client_nodes set"""
         data = chef.filter_nodes(self.nodes, 'production',
-                                 'loadbalancer,webserver,dbserver', 'guest')
+                                 ['loadbalancer', 'webserver', 'dbserver'], 'guest')
         links = graphs._build_links(data)
         self.maxDiff = None
         expected = {
@@ -278,7 +278,7 @@ class TestGraph(TestCase):
 
     def test_build_links_needs_nodes(self):
         """Should generate links when nodes have needs_nodes set"""
-        data = chef.filter_nodes(self.nodes, 'production', 'dbserver,worker',
+        data = chef.filter_nodes(self.nodes, 'production', ['dbserver', 'worker'],
                                  'guest')
         links = graphs._build_links(data)
         expected = {
@@ -377,30 +377,30 @@ class TestGraph(TestCase):
     def test_get_role_relations(self):
         """Should return role dependencies when roles with relationships are given"""
         prod_nodes = chef.filter_nodes(self.nodes, 'production')
-        extra_roles = graphs.get_role_relations('production', 'dbserver',
+        extra_roles = graphs.get_role_relations('production', ['dbserver'],
                                                 prod_nodes)
         self.assertEqual(extra_roles, ['webserver', 'worker'])
-        extra_roles = graphs.get_role_relations('production', 'loadbalancer',
+        extra_roles = graphs.get_role_relations('production', ['loadbalancer'],
                                                 prod_nodes)
         self.assertEqual(extra_roles, ['webserver'])
-        extra_roles = graphs.get_role_relations('production', 'worker',
+        extra_roles = graphs.get_role_relations('production', ['worker'],
                                                 prod_nodes)
         self.assertEqual(extra_roles, ['dbserver'])
-        extra_roles = graphs.get_role_relations('production', 'webserver',
+        extra_roles = graphs.get_role_relations('production', ['webserver'],
                                                 prod_nodes)
         self.assertEqual(extra_roles, ['dbserver', 'loadbalancer'])
 
     def test_get_role_relations_empty_when_roles(self):
         """Should obtain no roles when the given roles have no extra relationships"""
         stag_nodes = chef.filter_nodes(self.nodes, 'staging')
-        extra_roles = graphs.get_role_relations('staging', 'webserver',
+        extra_roles = graphs.get_role_relations('staging', ['webserver'],
                                                 stag_nodes)
         self.assertEqual(extra_roles, [])
 
     def test_get_role_relations_empty_when_no_roles(self):
         """Should obtain no roles when a role filter list is not given"""
         prod_nodes = chef.filter_nodes(self.nodes, 'staging')
-        extra_roles = graphs.get_role_relations('production', '', prod_nodes)
+        extra_roles = graphs.get_role_relations('production', [], prod_nodes)
         self.assertEqual(extra_roles, [])
 
 

@@ -15,9 +15,7 @@ log = Logger(__name__)
 
 def get_role_relations(env, roles, env_nodes):
     """Obtains extra relations with other roles"""
-    if roles:
-        roles = roles.split(',')
-    else:
+    if not roles:
         # Is a full environment graph
         return []
 
