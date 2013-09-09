@@ -97,7 +97,7 @@ class TestData(TestCase):
 
     def test_filter_nodes_all(self):
         """Should return all nodes when empty filters are are given"""
-        data = chef.filter_nodes(chef.get_nodes_extended(), '', '')
+        data = chef.filter_nodes(chef.get_nodes_extended())
         self.assertEqual(len(data), TOTAL_NODES)
 
     def test_filter_nodes_env(self):
@@ -114,22 +114,22 @@ class TestData(TestCase):
     def test_filter_nodes_roles(self):
         """Should filter nodes acording to their virt value"""
         data = chef.filter_nodes(chef.get_nodes_extended(),
-                                 roles='dbserver')
+                                 roles=['dbserver'])
         self.assertEqual(len(data), 2)
         self.assertEqual(data[0]['name'], "testnode3.mydomain.com")
 
         data = chef.filter_nodes(chef.get_nodes_extended(),
-                                 roles='loadbalancer')
+                                 roles=['loadbalancer'])
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]['name'], "testnode1")
 
         data = chef.filter_nodes(chef.get_nodes_extended(),
-                                 roles='webserver')
+                                 roles=['webserver'])
         self.assertEqual(len(data), 4)
         self.assertEqual(data[0]['name'], "testnode2")
 
         data = chef.filter_nodes(chef.get_nodes_extended(),
-                                 roles='webserver,dbserver')
+                                 roles=['webserver', 'dbserver'])
         self.assertEqual(len(data), 6)
         self.assertEqual(data[1]['name'], "testnode3.mydomain.com")
 
@@ -151,7 +151,7 @@ class TestData(TestCase):
         """Should filter nodes acording to their virt value"""
         data = chef.filter_nodes(chef.get_nodes_extended(),
                                  env='production',
-                                 roles='loadbalancer,webserver',
+                                 roles=['loadbalancer', 'webserver'],
                                  virt_roles='guest')
         self.assertEqual(len(data), 3)
         self.assertEqual(data[0]['name'], "testnode1")
@@ -159,7 +159,7 @@ class TestData(TestCase):
         self.assertEqual(data[2]['name'], "testnode7")
 
         data = chef.filter_nodes(chef.get_nodes_extended(), env='staging',
-                                 roles='webserver', virt_roles='guest')
+                                 roles=['webserver'], virt_roles='guest')
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]['name'], "testnode4")
 
@@ -191,7 +191,7 @@ class TestData(TestCase):
     def test_group_by_hosts_with_role(self):
         """Should group guests by hosts when giving a role filter"""
         data = chef.group_nodes_by_host(chef.get_nodes_extended(),
-                                        roles='loadbalancer')
+                                        roles=['loadbalancer'])
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]['name'], 'testnode9')
         self.assertEqual(len(data[0]['virtualization']['guests']), 3)

@@ -154,7 +154,7 @@ def group_nodes_by_host(nodes, roles='', env=''):
 def filter_nodes(nodes, env='', roles=None, virt_roles=''):
     """Returns nodes which fulfill env, roles and virt_roles criteria"""
     retval = []
-    if roles is None:
+    if not roles:
         roles = []
     if virt_roles:
         virt_roles = virt_roles.split(',')
