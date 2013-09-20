@@ -12,7 +12,8 @@
         {% block headjs %}
         <script type="text/javascript" src="/static/js/jquery-1.8.2.min.js"></script>
         <script type="text/javascript">
-        var show_virt = {% if show_virt %}{{ "true"|safe }}{% else %}{{ "false"|safe }}{% endif %};</script>
+        var show_virt = {% if show_virt %}{{ "true"|safe }}{% else %}{{ "false"|safe }}{% endif %};
+        </script>
         <script type="text/javascript" src="/static/js/sidebar.js"></script>
         {% endblock %}
         {% block extrastyles %}{% endblock %}
@@ -32,11 +33,23 @@
               <a class="brand" href="/"><img src="/static/img/logo.png">Kitchen</a>
               <div class="nav-collapse">
                 {% block topnav %}
-                <ul class="nav">
-                  <li class="active"><a href="/">List</a></li>
-                  {% if show_virt %}<li><a href="/virt/?{{ query_string }}">Virt</a></li>{% endif %}
-                  <li><a href="/graph/?{{query_string}}">Graph</a></li>
-                </ul>
+                    <ul class="nav">
+                        {% if show_list %}
+                            <li{% if view == 'list' %} class="active"{% endif %}>
+                                <a href="/?{{query_string}}">List</a>
+                            </li>
+                        {% endif %}
+                        {% if show_virt %}
+                            <li{% if view == 'virt' %} class="active"{% endif %}>
+                                <a href="/virt/?{{query_string}}">Virt</a>
+                            </li>
+                        {% endif %}
+                        {% if show_graph %}
+                            <li{% if view == 'graph' %} class="active"{% endif %}>
+                                <a href="/graph/?{{query_string}}">Graph</a>
+                            </li>
+                        {% endif %}
+                    </ul>
                 {% endblock %}
               </div><!--/.nav-collapse -->
             </div>

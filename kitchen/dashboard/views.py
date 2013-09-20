@@ -15,8 +15,8 @@ from kitchen.backends.lchef import (get_nodes, get_nodes_extended, get_roles,
                                     inject_plugin_data, RepoError,
                                     plugins as PLUGINS)
 from kitchen.dashboard import graphs
-from kitchen.settings import (SHOW_VIRT_VIEW, SHOW_HOST_NAMES, SHOW_LINKS,
-                              REPO, SYNCDATE_FILE)
+from kitchen.settings import (SHOW_VIRT_VIEW, SHOW_LIST_VIEW, SHOW_GRAPH_VIEW,
+                              SHOW_HOST_NAMES, SHOW_LINKS, REPO, SYNCDATE_FILE)
 
 log = Logger(__name__)
 
@@ -25,7 +25,12 @@ def _get_data(request, env, roles, virt, group_by_host=False):
     """Returns processed repository data, filtering nodes based on given args
     """
     roles = [role for role in roles.split(',') if role]
-    data = {'filter_env': env, 'filter_roles': roles, 'filter_virt': virt}
+    data = {
+        'filter_env': env, 'filter_roles': roles, 'filter_virt': virt,
+        'show_list': SHOW_LIST_VIEW, 'show_virt': SHOW_VIRT_VIEW,
+        'show_graph': SHOW_GRAPH_VIEW, 'show_links': SHOW_LINKS,
+        'query_string': request.META['QUERY_STRING']
+    }
     data['roles'] = get_roles()
     roles_groups = get_role_groups(data['roles'])
     data['roles_groups'] = roles_groups
@@ -75,8 +80,8 @@ def _set_options(options):
     return options
 
 
-def main(request):
-    """Default main view showing a list of nodes"""
+def list(request):
+    """Default list view showing a list of nodes"""
     _show_repo_sync_date(request)
     data = {}
     try:
@@ -89,10 +94,8 @@ def main(request):
         data['NODES'] = []
     else:
         data['NODES'] = json.dumps(data['nodes'])
-    data['show_virt'] = SHOW_VIRT_VIEW
-    data['show_links'] = SHOW_LINKS
-    data['query_string'] = request.META['QUERY_STRING']
-    return render_to_response('main.html',
+    data['view'] = 'list'
+    return render_to_response('list.html',
                               data, context_instance=RequestContext(request))
 
 
@@ -110,8 +113,7 @@ def virt(request):
         data['NODES'] = []
     else:
         data['NODES'] = json.dumps(data['nodes'])
-    data['show_links'] = SHOW_LINKS
-    data['query_string'] = request.META['QUERY_STRING']
+    data['view'] = 'virt'
     return render_to_response('virt.html',
                               data, context_instance=RequestContext(request))
 
@@ -153,8 +155,7 @@ def graph(request):
             add_message(request, WARNING, "Please select an environment")
 
     data['show_hostnames'] = 'show_hostnames' in options
-    data['query_string'] = request.META['QUERY_STRING']
-
+    data['view'] = 'graph'
     return render_to_response('graph.html',
                               data, context_instance=RequestContext(request))
 
