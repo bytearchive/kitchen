@@ -8,7 +8,7 @@ import kitchen.settings as settings
 
 
 urlpatterns = patterns('',
-    (r'^$', 'kitchen.dashboard.views.main'),
+    (r'^$', 'kitchen.dashboard.views.list'),
     (r'^virt/$', 'kitchen.dashboard.views.virt'),
     (r'^graph/$', 'kitchen.dashboard.views.graph'),
     (r'^plugins/((?P<plugin_type>(virt|v|list|l))/)?(?P<name>[\w\-\_]+)/(?P<method>\w+)/?$', 'kitchen.dashboard.views.plugins'),
