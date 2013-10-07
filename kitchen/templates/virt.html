@@ -6,14 +6,6 @@
     <script type="text/javascript" src="/static/js/kitchen.js"></script>
 {% endblock %}
 
-{% block topnav %}
-    <ul class="nav">
-        <li><a href="/?{{query_string}}">List</a></li>
-        <li class="active"><a href="/virt/">Virt</a></li>
-        <li><a href="/graph/?{{query_string}}">Graph</a></li>
-    </ul>
-{% endblock %}
-
 {% block bodycontent %}
     {% if nodes_extended %}
         <table id="nodes" class="table">
