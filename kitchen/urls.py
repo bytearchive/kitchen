@@ -7,8 +7,18 @@ from kitchen.dashboard import api
 import kitchen.settings as settings
 
 
+if settings.SHOW_LIST_VIEW:
+    root_view = 'kitchen.dashboard.views.list'
+elif settings.SHOW_VIRT_VIEW:
+    root_view = 'kitchen.dashboard.views.virt'
+elif settings.SHOW_GRAPH_VIEW:
+    root_view = 'kitchen.dashboard.views.graph'
+else:
+    raise Exception("No views enabled! Please edit settings.py.")
+
+
 urlpatterns = patterns('',
-    (r'^$', 'kitchen.dashboard.views.list'),
+    (r'^$', root_view),
     (r'^virt/$', 'kitchen.dashboard.views.virt'),
     (r'^graph/$', 'kitchen.dashboard.views.graph'),
     (r'^plugins/((?P<plugin_type>(virt|v|list|l))/)?(?P<name>[\w\-\_]+)/(?P<method>\w+)/?$', 'kitchen.dashboard.views.plugins'),
