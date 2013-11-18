@@ -1,5 +1,5 @@
 """Root URL routing"""
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
 
