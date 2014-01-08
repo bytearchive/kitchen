@@ -107,7 +107,8 @@ def virt(request):
         data = _get_data(request,
                          request.GET.get('env', REPO['DEFAULT_ENV']),
                          request.GET.get('roles', ''),
-                         None, group_by_host=True)
+                         request.GET.get('virt', REPO['DEFAULT_VIRT']),
+                         group_by_host=True)
     except RepoError as e:
         add_message(request, ERROR, str(e))
         data['NODES'] = []
