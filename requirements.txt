@@ -3,3 +3,4 @@ logbook
 pydot
 pyparsing==1.5.7
 littlechef>=1.5
+simplejson==3.6.0
