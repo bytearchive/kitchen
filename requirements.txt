@@ -1,3 +1,5 @@
+--allow-external pydot
+--allow-unverified pydot
 Django==1.6.1
 Logbook==0.6.0
 pydot==1.0.28
