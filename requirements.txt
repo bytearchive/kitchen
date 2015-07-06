@@ -1,6 +1,6 @@
-django>=1.4
-logbook
-pydot
+Django==1.6.1
+Logbook==0.6.0
+pydot==1.0.2
 pyparsing==1.5.7
-littlechef>=1.5
+littlechef==1.5.2
 simplejson==3.6.0
