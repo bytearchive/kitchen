@@ -119,7 +119,7 @@ def generate_node_map(nodes, roles, show_hostnames=True):
     role_groups = get_role_groups(roles) + ['none']
     for role in role_groups:
         clusters[role] = pydot.Cluster(
-            role, label=role, color=COLORS[color_index], fontsize="12")
+            role.replace("-", "_"), label=role, color=COLORS[color_index], fontsize="12")
         graph.add_subgraph(clusters[role])
         role_colors[role] = COLORS[color_index]
         color_index += 1
